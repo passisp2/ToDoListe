@@ -3,11 +3,14 @@ IT-Projekt: Web-App für persönliche ToDo-Listen
 
 ## Tech-Stack
 - Frontend: Vanilla JavaScript, HTML, CSS; Bootstrap 5.3.3 per CDN eingebunden.
-- Backend: Python + SQLite; Framework-Entscheidung: Flask
+- Backend: Python + Flask; MariaDB als DB (lokal über Docker), vorerst nur Platzhalter-API.
 - Kommunikation: JSON-basierte REST-API.
 
 ## Docker-Setup (lokal, Stand: 09.02.2026)
-- 2 Services via `docker-compose.yml`: `db` (MariaDB 11.4) + `api` (Python/Flask-Platzhalter, liefert aktuell `/` und `/api/health`).
+- Services via `docker-compose.yml`:
+  - `db` (MariaDB 11.4) mit Volume `db_data`.
+  - `api` (Flask-Platzhalter, liefert aktuell `/` und `/api/health`).
+  - `db-init` (Profil `init`): führt ein Beispiel-Init-SQL (`db/init.sql`) gegen die DB aus; dient als Setup-Container/Platzhalter.
 - Persistenz: benanntes Volume `db_data` für MariaDB-Daten; liegt außerhalb des Git-Repos.
 - Konfiguration: `.env` (nicht commiten) mit DB-Credentials; Vorlage in `.env.example`.
 - Ports: API auf `8000`, MariaDB auf `3306` (Port-Mapping nur für lokalen Zugriff/Clients).
@@ -16,8 +19,9 @@ IT-Projekt: Web-App für persönliche ToDo-Listen
 1) Prereqs: Docker + Docker Compose installiert.
 2) `.env` anlegen: `cp .env.example .env` und Werte bei Bedarf anpassen.
 3) Container starten: `docker compose up --build`.
-4) App öffnen: `http://localhost:8000/` (liefert statisches Frontend aus `frontend/`), Healthcheck unter `http://localhost:8000/api/health`.
-5) Stoppen: `docker compose down` (Daten bleiben im Volume `db_data` erhalten).
+4) Optionales DB-Init (Platzhalter): `docker compose --profile init up db-init` (führt `db/init.sql` aus).
+5) App öffnen: `http://localhost:8000/` (liefert statisches Frontend aus `frontend/`), Healthcheck unter `http://localhost:8000/api/health`.
+6) Stoppen: `docker compose down` (Daten bleiben im Volume `db_data` erhalten).
 
 ### Hinweise
 - Die Flask-App ist nur ein Platzhalter; API-Endpoints und DB-Anbindung kommen noch.

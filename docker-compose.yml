@@ -39,5 +39,25 @@ services:
       - ./frontend:/app/frontend
     command: ["python", "app.py"]
 
+  db-init:
+    image: mariadb:11.4
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./db/init.sql:/init/init.sql:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      mysql -h "${DB_HOST}" -P "${DB_PORT}" -u "${DB_USER}" -p"${DB_PASSWORD}" "${DB_NAME}" < /init/init.sql
+      && echo 'Init-Skript ausgeführt (db-init).'
+      || echo 'Init-Skript ausgelassen (prüfe Credentials/DB-Verfügbarkeit).'
+    profiles: ["init"]
+
 volumes:
   db_data:
