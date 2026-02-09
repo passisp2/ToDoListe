@@ -12,6 +12,74 @@
     --active-bg: #e9ecef;
     --hover-bg: #f1f3f5;
     --primary-color: #0d6efd;
+    --input-bg: #ffffff;
+    --card-bg: #ffffff;
+}
+
+/* Dark Mode Theme */
+[data-theme="dark"] {
+    --sidebar-bg: #1a1d23;
+    --main-bg: #0d1117;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --border-color: #30363d;
+    --active-bg: #21262d;
+    --hover-bg: #161b22;
+    --primary-color: #58a6ff;
+    --input-bg: #0d1117;
+    --card-bg: #161b22;
+}
+
+[data-theme="dark"] .modal-content {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .btn-close {
+    filter: invert(1);
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] .input-group-text {
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    border-color: var(--primary-color);
+}
+
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer {
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .btn-outline-secondary {
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .btn-outline-secondary:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .link-secondary {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .link-secondary:hover {
+    color: var(--text-primary) !important;
 }
 
 * {
@@ -25,6 +93,7 @@ html, body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     color: var(--text-primary);
     background-color: var(--main-bg);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
@@ -123,6 +192,57 @@ body {
     padding-top: 20px;
     padding-bottom: 40px;
     background-color: var(--main-bg);
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Container für den Inhalt mit optimaler Breite */
+.main-content > * {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Main-Content Layout mit flexibler Breite und Zentrierung */
+@media (min-width: 992px) {
+    .main-content {
+        margin-left: var(--sidebar-width);
+        margin-right: 0;
+        width: auto;
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+    
+    /* Wenn Detail-Sidebar geschlossen ist: Zentriere den Inhalt */
+    .main-content.centered {
+        margin-left: var(--sidebar-width);
+        margin-right: 0;
+        width: calc(100% - var(--sidebar-width));
+    }
+    
+    .main-content.centered > * {
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    /* Wenn Detail-Sidebar offen ist, passt sich die Breite an */
+    body:has(.task-detail-sidebar:not(.d-none)) .main-content {
+        width: calc(100% - var(--sidebar-width) - 400px);
+        margin-right: 400px;
+    }
+    
+    body:has(.task-detail-sidebar:not(.d-none)) .main-content > * {
+        max-width: 100%;
+    }
+    
+    /* Wenn Detail-Sidebar offen ist, bleibt das Layout wie vorher */
+    .task-detail-sidebar:not(.d-none) {
+        display: block !important;
+    }
 }
 
 .main-content h1, .main-content h2 {
@@ -248,6 +368,11 @@ body {
     padding: 20px;
     overflow-y: auto;
     max-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+.task-detail-sidebar.d-none {
+    display: none !important;
 }
 
 .task-detail-sidebar .card {
@@ -416,6 +541,55 @@ body {
 
 .task-detail-sidebar.show {
     animation: slideIn 0.3s ease;
+}
+
+/* ========================================
+   Tag Color Picker & Preview
+   ======================================== */
+
+.form-control-color {
+    width: 80px;
+    height: 45px;
+    padding: 0.25rem;
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+}
+
+.form-control-color:hover {
+    border-color: var(--primary-color);
+}
+
+#tagPreview {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+/* ========================================
+   List Sharing Styles
+   ======================================== */
+
+.list-share-btn {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.nav-item:hover .list-share-btn {
+    opacity: 1;
+}
+
+.list-share-btn:hover {
+    background-color: var(--hover-bg);
+}
+
+.bi-people-fill {
+    font-size: 0.875rem;
 }
 
 /* ========================================

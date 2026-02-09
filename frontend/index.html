@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -112,7 +112,7 @@
                                 <span class="badge bg-warning text-dark">medium</span>
                                 <span class="badge bg-success">low</span>
                             </div>
-                            <a class="text-muted small mt-2 d-inline-block" href="#" id="addTagBtn">
+                            <a class="text-muted small mt-2 d-inline-block" href="#" id="addTagBtn" data-bs-toggle="modal" data-bs-target="#addTagModal">
                                 <i class="bi bi-plus-lg me-1"></i> Add Tag
                             </a>
                         </div>
@@ -140,7 +140,7 @@
             </nav>
             
             <!-- Main Content -->
-            <main class="col-md-9 ms-sm-auto col-lg-7 px-md-4 main-content">
+            <main class="px-md-4 main-content">
                 <!-- Mobile Menu Toggle -->
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 d-md-none">
                     <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
@@ -260,6 +260,125 @@
         </div>
     </div>
     
+    <!-- Add Tag Modal -->
+    <div class="modal fade" id="addTagModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Tag</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="closeTagModal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addTagForm">
+                        <div class="mb-3">
+                            <label for="tagName" class="form-label">Tag Name</label>
+                            <input type="text" class="form-control" id="tagName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tagColor" class="form-label">Color</label>
+                            <div class="d-flex align-items-center gap-3">
+                                <input type="color" class="form-control form-control-color" id="tagColor" value="#dc3545" title="Wähle eine Farbe">
+                                <div class="flex-grow-1">
+                                    <div class="tag-preview badge" id="tagPreview">Vorschau</div>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Die Textfarbe wird automatisch angepasst für beste Lesbarkeit</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelTagBtn">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveTagBtn">Save Tag</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Share List Modal -->
+    <div class="modal fade" id="shareListModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Liste teilen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-3">Geben Sie den Benutzernamen ein, mit dem Sie die Liste "<span id="shareListName"></span>" teilen möchten:</p>
+                    <form id="shareListForm">
+                        <div class="mb-3">
+                            <label for="shareUsername" class="form-label">Benutzername</label>
+                            <input type="text" class="form-control" id="shareUsername" placeholder="z.B. max.mustermann" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Berechtigungen</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="sharePermission" id="shareReadOnly" value="read" checked>
+                                <label class="form-check-label" for="shareReadOnly">
+                                    <i class="bi bi-eye me-1"></i> Nur Ansehen
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="sharePermission" id="shareEdit" value="edit">
+                                <label class="form-check-label" for="shareEdit">
+                                    <i class="bi bi-pencil me-1"></i> Bearbeiten
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Liste der bereits geteilten Benutzer -->
+                        <div id="sharedUsersList" class="mt-4">
+                            <h6 class="text-muted">Geteilt mit:</h6>
+                            <div id="sharedUsersContainer">
+                                <p class="text-muted small">Diese Liste wurde noch nicht geteilt.</p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-primary" id="shareListBtn">Teilen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirm Modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmModalTitle">Bestätigung</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="confirmModalBody">
+                    <!-- Nachricht wird dynamisch eingefügt -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-primary" id="confirmModalBtn">Bestätigen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Info Modal -->
+    <div class="modal fade" id="infoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="infoModalTitle">Hinweis</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="infoModalBody">
+                    <!-- Nachricht wird dynamisch eingefügt -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Settings Modal -->
     <div class="modal fade" id="settingsModal" tabindex="-1">
         <div class="modal-dialog">
@@ -273,11 +392,15 @@
                         <label class="form-label">Theme</label>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="theme" id="themeLight" value="light" checked>
-                            <label class="form-check-label" for="themeLight">Light</label>
+                            <label class="form-check-label" for="themeLight">
+                                <i class="bi bi-sun me-2"></i>Light Mode
+                            </label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="theme" id="themeDark" value="dark">
-                            <label class="form-check-label" for="themeDark">Dark</label>
+                            <label class="form-check-label" for="themeDark">
+                                <i class="bi bi-moon me-2"></i>Dark Mode
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -290,6 +413,12 @@
     
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    
+    <!-- Cookie Manager (must load first) -->
+    <script src="js/cookies.js"></script>
+    
+    <!-- Authentication Guard -->
+    <script src="js/auth.js"></script>
     
     <!-- Custom JavaScript -->
     <script src="js/app.js"></script>
