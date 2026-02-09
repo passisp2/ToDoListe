@@ -1,1 +1,461 @@
-/* Custom Styles */
+/* ========================================
+   Global Styles
+   ======================================== */
+
+:root {
+    --sidebar-bg: #f8f9fa;
+    --sidebar-width: 260px;
+    --main-bg: #ffffff;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --border-color: #dee2e6;
+    --active-bg: #e9ecef;
+    --hover-bg: #f1f3f5;
+    --primary-color: #0d6efd;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: var(--text-primary);
+    background-color: var(--main-bg);
+}
+
+body {
+    overflow-x: hidden;
+}
+
+/* ========================================
+   Sidebar Styles
+   ======================================== */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 0;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+}
+
+.sidebar-sticky {
+    position: relative;
+    height: calc(100vh - 48px);
+    padding-top: 0.5rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-heading {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Sidebar Navigation */
+.sidebar .nav-link {
+    font-weight: 400;
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    margin: 2px 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar .nav-link:hover {
+    background-color: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+.sidebar .nav-link.active {
+    background-color: var(--active-bg);
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.sidebar .nav-link i {
+    font-size: 1rem;
+}
+
+/* Search Input */
+.sidebar .input-group-text {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+}
+
+.sidebar .form-control {
+    border: 1px solid var(--border-color);
+    background-color: white;
+}
+
+.sidebar .form-control:focus {
+    box-shadow: none;
+    border-color: var(--primary-color);
+}
+
+/* Lists and Tags */
+.badge.rounded-circle {
+    width: 12px;
+    height: 12px;
+    padding: 0;
+    display: inline-block;
+}
+
+/* ========================================
+   Main Content Styles
+   ======================================== */
+
+.main-content {
+    padding-top: 20px;
+    padding-bottom: 40px;
+    background-color: var(--main-bg);
+}
+
+.main-content h1, .main-content h2 {
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+/* Add Task Button */
+#addTaskBtn {
+    font-size: 0.95rem;
+    padding: 8px 0;
+}
+
+#addTaskBtn:hover {
+    color: var(--primary-color) !important;
+}
+
+/* ========================================
+   Task List Styles
+   ======================================== */
+
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 0 !important;
+    padding: 1rem 0.5rem;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+}
+
+.list-group-item:hover {
+    background-color: var(--hover-bg);
+}
+
+.list-group-item:first-child {
+    border-top: 1px solid var(--border-color);
+}
+
+.list-group-item.completed .task-title {
+    text-decoration: line-through;
+    color: var(--text-secondary);
+}
+
+/* Task Checkbox */
+.task-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.task-checkbox:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Task Content */
+.task-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.task-title {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.task-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.task-meta .badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 4px 8px;
+}
+
+.task-arrow {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+/* Tag Colors */
+.badge.tag-high {
+    background-color: #dc3545;
+}
+
+.badge.tag-medium {
+    background-color: #fd7e14;
+    color: #000;
+}
+
+.badge.tag-low {
+    background-color: #198754;
+}
+
+.badge.list-personal {
+    background-color: #9b59b6;
+}
+
+.badge.list-work {
+    background-color: #3498db;
+}
+
+/* ========================================
+   Task Detail Sidebar Styles
+   ======================================== */
+
+.task-detail-sidebar {
+    background-color: var(--sidebar-bg);
+    border-left: 1px solid var(--border-color);
+    padding: 20px;
+    overflow-y: auto;
+    max-height: 100vh;
+}
+
+.task-detail-sidebar .card {
+    background-color: transparent;
+}
+
+.task-detail-sidebar .form-label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.task-detail-sidebar .form-control,
+.task-detail-sidebar .form-select {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.task-detail-sidebar .form-control:focus,
+.task-detail-sidebar .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.task-detail-sidebar #taskTitle {
+    font-size: 1.1rem;
+    border: none;
+    border-bottom: 2px solid var(--border-color);
+    border-radius: 0;
+    padding-left: 0;
+}
+
+.task-detail-sidebar #taskTitle:focus {
+    box-shadow: none;
+    border-bottom-color: var(--primary-color);
+}
+
+/* Action Buttons in Task Detail */
+.task-detail-sidebar .btn-primary {
+    background-color: #f8b4b4;
+    border-color: #f8b4b4;
+    color: #721c24;
+    font-weight: 500;
+}
+
+.task-detail-sidebar .btn-primary:hover {
+    background-color: #f5a3a3;
+    border-color: #f5a3a3;
+}
+
+.task-detail-sidebar .btn-outline-secondary {
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.task-detail-sidebar .btn-outline-secondary:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+/* ========================================
+   Modal Styles
+   ======================================== */
+
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+}
+
+/* ========================================
+   Responsive Styles
+   ======================================== */
+
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 80%;
+        max-width: 300px;
+        transition: left 0.3s ease;
+        z-index: 1050;
+    }
+    
+    .sidebar.show {
+        left: 0;
+    }
+    
+    .main-content {
+        margin-left: 0 !important;
+        width: 100%;
+    }
+    
+    .task-detail-sidebar {
+        position: fixed;
+        right: -100%;
+        top: 0;
+        width: 100%;
+        max-width: 100%;
+        height: 100vh;
+        z-index: 1040;
+        transition: right 0.3s ease;
+    }
+    
+    .task-detail-sidebar.show {
+        right: 0;
+    }
+}
+
+@media (min-width: 768px) {
+    .main-content {
+        margin-left: var(--sidebar-width);
+    }
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+
+.text-decoration-none {
+    text-decoration: none !important;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.d-none {
+    display: none !important;
+}
+
+.d-block {
+    display: block !important;
+}
+
+/* ========================================
+   Animations
+   ======================================== */
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.task-detail-sidebar.show {
+    animation: slideIn 0.3s ease;
+}
+
+/* ========================================
+   Scrollbar Styles (Webkit)
+   ======================================== */
+
+.sidebar::-webkit-scrollbar,
+.task-detail-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track,
+.task-detail-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.task-detail-sidebar::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover,
+.task-detail-sidebar::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}
+
+/* ========================================
+   Print Styles
+   ======================================== */
+
+@media print {
+    .sidebar,
+    .task-detail-sidebar,
+    #addTaskBtn {
+        display: none !important;
+    }
+    
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+}

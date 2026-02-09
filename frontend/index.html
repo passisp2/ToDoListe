@@ -5,15 +5,290 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ToDo Liste</title>
     
-    <!-- Bootstrap 5.3.3 CSS (Neueste stabile Version) -->
+    <!-- Bootstrap 5.3.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div class="container-fluid h-100">
+        <div class="row h-100">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse" id="sidebarMenu">
+                <div class="position-sticky pt-3 sidebar-sticky">
+                    <!-- Menu Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-3 px-3">
+                        <h4 class="sidebar-heading mb-0">Menu</h4>
+                        <button class="btn btn-link text-dark d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                            <i class="bi bi-list fs-4"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Search -->
+                    <div class="px-3 mb-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="bi bi-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0 ps-0" placeholder="Search" id="searchInput">
+                        </div>
+                    </div>
+                    
+                    <!-- Tasks Section -->
+                    <div class="mb-4">
+                        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-2 text-muted">
+                            Tasks
+                        </h6>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#" data-view="today">
+                                    <i class="bi bi-calendar-check me-2"></i>
+                                    Today
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-view="upcoming">
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    Upcoming
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-view="overview">
+                                    <i class="bi bi-grid me-2"></i>
+                                    Overview
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-view="calender">
+                                    <i class="bi bi-calendar me-2"></i>
+                                    Calender
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Lists Section -->
+                    <div class="mb-4">
+                        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-2 text-muted">
+                            <span>Lists</span>
+                            <a class="link-secondary" href="#" data-bs-toggle="modal" data-bs-target="#addListModal">
+                                <i class="bi bi-person-plus"></i> Invite
+                            </a>
+                        </h6>
+                        <ul class="nav flex-column" id="listContainer">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-list="personal">
+                                    <span class="badge rounded-circle me-2" style="background-color: #9b59b6;">&nbsp;</span>
+                                    Personal
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-list="work">
+                                    <span class="badge rounded-circle me-2" style="background-color: #3498db;">&nbsp;</span>
+                                    Work
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-muted" href="#" id="addListBtn">
+                                    <i class="bi bi-plus-lg me-2"></i>
+                                    Add List
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Tags Section -->
+                    <div class="mb-4">
+                        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-2 text-muted">
+                            Tags
+                        </h6>
+                        <div class="px-3 mb-2">
+                            <div class="d-flex flex-wrap gap-2" id="tagsContainer">
+                                <span class="badge bg-danger">high</span>
+                                <span class="badge bg-warning text-dark">medium</span>
+                                <span class="badge bg-success">low</span>
+                            </div>
+                            <a class="text-muted small mt-2 d-inline-block" href="#" id="addTagBtn">
+                                <i class="bi bi-plus-lg me-1"></i> Add Tag
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Bottom Navigation -->
+                    <div class="mt-auto px-3">
+                        <hr>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                                    <i class="bi bi-gear me-2"></i>
+                                    Settings
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" id="logoutBtn">
+                                    <i class="bi bi-box-arrow-right me-2"></i>
+                                    Log out
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-7 px-md-4 main-content">
+                <!-- Mobile Menu Toggle -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 d-md-none">
+                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                        <i class="bi bi-list"></i>
+                    </button>
+                </div>
+                
+                <!-- Page Title -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3">
+                    <h1 class="h2" id="pageTitle">Today</h1>
+                </div>
+                
+                <!-- Add Task Button -->
+                <div class="mb-3">
+                    <button class="btn btn-link text-muted text-decoration-none p-0" id="addTaskBtn">
+                        <i class="bi bi-plus-lg me-2"></i>
+                        Add new Task
+                    </button>
+                </div>
+                
+                <!-- Tasks List -->
+                <div class="list-group" id="tasksList">
+                    <!-- Tasks will be dynamically added here -->
+                </div>
+            </main>
+            
+            <!-- Task Detail Sidebar -->
+            <aside class="col-md-12 col-lg-3 task-detail-sidebar d-none" id="taskDetailSidebar">
+                <div class="card border-0 h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">Task:</h5>
+                            <button type="button" class="btn-close" id="closeTaskDetail"></button>
+                        </div>
+                        
+                        <form id="taskDetailForm">
+                            <!-- Task Title -->
+                            <div class="mb-3">
+                                <input type="text" class="form-control fw-bold" id="taskTitle" placeholder="Task Title" required>
+                            </div>
+                            
+                            <!-- Description -->
+                            <div class="mb-3">
+                                <label for="taskDescription" class="form-label text-muted">Description</label>
+                                <textarea class="form-control" id="taskDescription" rows="4" placeholder="Add description..."></textarea>
+                            </div>
+                            
+                            <!-- List Selection -->
+                            <div class="mb-3">
+                                <label for="taskList" class="form-label">
+                                    <i class="bi bi-check-circle me-2"></i>List:
+                                </label>
+                                <select class="form-select" id="taskList">
+                                    <option value="personal">Personal</option>
+                                    <option value="work">Work</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Due Date -->
+                            <div class="mb-3">
+                                <label for="taskDueDate" class="form-label">
+                                    <i class="bi bi-check-circle me-2"></i>Due Date:
+                                </label>
+                                <input type="date" class="form-control" id="taskDueDate">
+                            </div>
+                            
+                            <!-- Tags -->
+                            <div class="mb-4">
+                                <label for="taskTags" class="form-label">
+                                    <i class="bi bi-check-circle me-2"></i>Tags:
+                                </label>
+                                <select class="form-select" id="taskTags">
+                                    <option value="">Select tag...</option>
+                                    <option value="high">high</option>
+                                    <option value="medium">medium</option>
+                                    <option value="low">low</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-secondary flex-fill" id="cancelTaskBtn">Cancel</button>
+                                <button type="submit" class="btn btn-primary flex-fill">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
     
-    <!-- Bootstrap 5.3.3 JS Bundle (Neueste stabile Version) -->
+    <!-- Add List Modal -->
+    <div class="modal fade" id="addListModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New List</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addListForm">
+                        <div class="mb-3">
+                            <label for="listName" class="form-label">List Name</label>
+                            <input type="text" class="form-control" id="listName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="listColor" class="form-label">Color</label>
+                            <input type="color" class="form-control form-control-color" id="listColor" value="#3498db">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveListBtn">Save List</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Theme</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="theme" id="themeLight" value="light" checked>
+                            <label class="form-check-label" for="themeLight">Light</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="theme" id="themeDark" value="dark">
+                            <label class="form-check-label" for="themeDark">Dark</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     
     <!-- Custom JavaScript -->
