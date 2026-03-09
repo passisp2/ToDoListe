@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   db:
     image: mariadb:11.4
@@ -13,7 +11,7 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "${DB_USER}", "-p${DB_PASSWORD}"]
+      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-u", "${DB_USER}", "-p${DB_PASSWORD}"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -52,11 +50,13 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ./db/init.sql:/init/init.sql:ro
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      mysql -h "${DB_HOST}" -P "${DB_PORT}" -u "${DB_USER}" -p"${DB_PASSWORD}" "${DB_NAME}" < /init/init.sql
-      && echo 'Init-Skript ausgeführt (db-init).'
-      || echo 'Init-Skript ausgelassen (prüfe Credentials/DB-Verfügbarkeit).'
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        mariadb -h "$$DB_HOST" -P "$$DB_PORT" -u "$$DB_USER" -p"$$DB_PASSWORD" "$$DB_NAME" < /init/init.sql \
+        && echo 'Init-Skript ausgeführt (db-init).' \
+        || echo 'Init-Skript ausgelassen (prüfe Credentials/DB-Verfügbarkeit).'
     profiles: ["init"]
 
 volumes:
