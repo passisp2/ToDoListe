@@ -5,7 +5,7 @@ from pathlib import Path
 from flask import Flask, jsonify, send_from_directory
 
 from database import build_database_uri, db
-from routes import auth_bp
+from routes import auth_bp, todo_bp
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -51,6 +51,7 @@ def create_app(test_config: dict | None = None) -> Flask:
         return jsonify({"status": "ok"})
 
     app.register_blueprint(auth_bp)
+    app.register_blueprint(todo_bp)
 
     return app
 

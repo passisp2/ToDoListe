@@ -104,3 +104,19 @@ SELECT 'Beispielaufgabe', 'Diese Zeile stammt aus init.sql', 0, NULL, lists.id
 FROM lists
 WHERE lists.slug = 'personal'
   AND NOT EXISTS (SELECT 1 FROM tasks WHERE title = 'Beispielaufgabe');
+
+INSERT INTO tasks (title, description, completed, due_date, list_id)
+SELECT 'Team-Meeting vorbereiten', 'Agenda und offene Punkte sammeln', 0, CURRENT_DATE + INTERVAL 2 DAY, lists.id
+FROM lists
+WHERE lists.slug = 'work'
+  AND NOT EXISTS (SELECT 1 FROM tasks WHERE title = 'Team-Meeting vorbereiten');
+
+INSERT INTO task_tags (task_id, tag_id)
+SELECT tasks.id, tags.id
+FROM tasks
+JOIN tags ON tags.name = 'medium'
+WHERE tasks.title = 'Team-Meeting vorbereiten'
+  AND NOT EXISTS (
+    SELECT 1 FROM task_tags
+    WHERE task_tags.task_id = tasks.id AND task_tags.tag_id = tags.id
+  );

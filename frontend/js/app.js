@@ -9,69 +9,28 @@
 
 const AppState = {
     tasks: [],
-    lists: [
-        { id: 'personal', name: 'Personal', color: '#9b59b6', owner: 'admin', sharedWith: [] },
-        { id: 'work', name: 'Work', color: '#3498db', owner: 'admin', sharedWith: [] }
-    ],
-    tags: [
-        { name: 'high', color: '#dc3545' },
-        { name: 'medium', color: '#ffc107' },
-        { name: 'low', color: '#198754' }
-    ],
+    lists: [],
+    tags: [],
     currentView: 'today',
+    calendarWeekOffset: 0,
+    selectedListFilter: null,
     selectedTask: null,
     filterQuery: '',
     theme: 'light',
-    currentUser: 'admin', // Aktuell eingeloggter Benutzer
+    currentUser: null, // Aktuell eingeloggter Benutzer
     sharedListsData: {} // Speichert Sharing-Informationen pro Liste
 };
 
-// ========================================
-// Sample Data (wird später vom Backend kommen)
-// ========================================
+const STORAGE_KEYS = {
+    CURRENT_VIEW: 'todo_current_view'
+};
 
-const sampleTasks = [
-    {
-        id: 1,
-        title: 'Task 1',
-        description: '',
-        completed: false,
-        list: 'personal',
-        dueDate: null,
-        tags: [],
-        createdAt: new Date().toISOString()
-    },
-    {
-        id: 2,
-        title: 'Task 2',
-        description: '',
-        completed: false,
-        list: 'work',
-        dueDate: null,
-        tags: [],
-        createdAt: new Date().toISOString()
-    },
-    {
-        id: 3,
-        title: 'Task 3',
-        description: 'This is a sample description for Task 3. It shows how the task detail view works.',
-        completed: false,
-        list: 'personal',
-        dueDate: '2025-11-20',
-        tags: ['low'],
-        createdAt: new Date().toISOString()
-    },
-    {
-        id: 4,
-        title: 'Task 4',
-        description: '',
-        completed: false,
-        list: 'work',
-        dueDate: null,
-        tags: ['medium'],
-        createdAt: new Date().toISOString()
-    }
-];
+const VIEW_TITLES = {
+    today: 'Today',
+    upcoming: 'Upcoming',
+    overview: 'Overview',
+    calender: 'Calendar'
+};
 
 // ========================================
 // DOM Elements
@@ -115,30 +74,38 @@ const DOM = {
 // ========================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
+    void initializeApp();
 });
 
-function initializeApp() {
-    // Lade Sample-Daten (später vom Backend)
-    AppState.tasks = [...sampleTasks];
-    
-    // Lade aktuellen Benutzer aus Session
+async function initializeApp() {
     loadCurrentUser();
-    
-    // Lade geteilte Listen aus localStorage
-    loadSharedLists();
-    
-    // Lade gespeichertes Theme
     loadTheme();
-    
-    // Render initial view
+    loadPersistedView();
+    setupEventListeners();
+    applyCurrentViewUI();
+
+    await refreshAllData();
     renderTasks();
     renderLists();
     renderTags();
-    
-    // Setup event listeners
-    setupEventListeners();
-    
+
+    document.addEventListener('auth:user-ready', (event) => {
+        const email = event?.detail?.email;
+        if (!email || email === AppState.currentUser) {
+            return;
+        }
+        AppState.currentUser = email;
+        void refreshAllData()
+            .then(() => {
+                renderTasks();
+                renderLists();
+                renderTags();
+            })
+            .catch(() => {
+                showNotification('Daten konnten nicht neu geladen werden.', 'danger');
+            });
+    });
+
     console.log('Todo List App initialized successfully');
     console.log('Current user:', AppState.currentUser);
 }
@@ -169,7 +136,7 @@ function loadCurrentUser() {
         console.error('Error loading authUser from localStorage:', e);
     }
 
-    AppState.currentUser = 'admin';
+    AppState.currentUser = null;
 }
 
 /**
@@ -185,10 +152,10 @@ function loadSharedLists() {
             AppState.lists.forEach(list => {
                 const shareInfo = AppState.sharedListsData[list.id];
                 if (shareInfo) {
-                    list.owner = shareInfo.owner || AppState.currentUser;
+                    list.owner = shareInfo.owner || list.owner || null;
                     list.sharedWith = shareInfo.sharedWith || [];
                 } else {
-                    list.owner = list.owner || AppState.currentUser;
+                    list.owner = list.owner || null;
                     list.sharedWith = list.sharedWith || [];
                 }
             });
@@ -219,6 +186,51 @@ function saveSharedLists() {
     } catch (e) {
         console.error('Error saving shared lists:', e);
     }
+}
+
+async function refreshAllData() {
+    try {
+        const [lists, tags, tasks] = await Promise.all([
+            API.getLists(),
+            API.getTags(),
+            API.getTasks()
+        ]);
+        AppState.lists = Array.isArray(lists) ? lists : [];
+        AppState.tags = Array.isArray(tags) ? tags : [];
+        AppState.tasks = Array.isArray(tasks) ? tasks : [];
+        loadSharedLists();
+    } catch (error) {
+        console.error('Error loading API data:', error);
+        showNotification('Daten konnten nicht geladen werden.', 'danger');
+    }
+}
+
+async function refreshTasksFromApi() {
+    const tasks = await API.getTasks();
+    AppState.tasks = Array.isArray(tasks) ? tasks : [];
+}
+
+function loadPersistedView() {
+    const savedView = localStorage.getItem(STORAGE_KEYS.CURRENT_VIEW);
+    if (savedView && Object.prototype.hasOwnProperty.call(VIEW_TITLES, savedView)) {
+        AppState.currentView = savedView;
+    }
+}
+
+function applyCurrentViewUI() {
+    document.querySelectorAll('[data-view]').forEach(link => {
+        link.classList.toggle('active', link.dataset.view === AppState.currentView);
+    });
+    DOM.pageTitle.textContent = VIEW_TITLES[AppState.currentView] || VIEW_TITLES.today;
+}
+
+function setCurrentView(view) {
+    if (!Object.prototype.hasOwnProperty.call(VIEW_TITLES, view)) {
+        return;
+    }
+    AppState.currentView = view;
+    localStorage.setItem(STORAGE_KEYS.CURRENT_VIEW, view);
+    applyCurrentViewUI();
 }
 
 // ========================================
@@ -411,7 +423,13 @@ function setupEventListeners() {
 function renderTasks() {
     const filteredTasks = getFilteredTasks();
     DOM.tasksList.innerHTML = '';
-    
+    DOM.tasksList.classList.remove('calendar-view');
+
+    if (AppState.currentView === 'calender') {
+        renderCalendarWeek(filteredTasks);
+        return;
+    }
+
     if (filteredTasks.length === 0) {
         DOM.tasksList.innerHTML = `
             <div class="text-center py-5 text-muted">
@@ -426,6 +444,163 @@ function renderTasks() {
         const taskElement = createTaskElement(task);
         DOM.tasksList.appendChild(taskElement);
     });
+}
+
+function toIsoDateLocal(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function getWeekStartMonday(baseDate) {
+    const result = new Date(baseDate);
+    result.setHours(0, 0, 0, 0);
+    const day = (result.getDay() + 6) % 7; // Monday = 0
+    result.setDate(result.getDate() - day + AppState.calendarWeekOffset * 7);
+    return result;
+}
+
+function createCalendarTaskCard(task) {
+    const card = document.createElement('div');
+    card.className = `calendar-task-card ${task.completed ? 'completed' : ''}`;
+    card.dataset.taskId = task.id;
+
+    const top = document.createElement('div');
+    top.className = 'calendar-task-top';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'form-check-input task-checkbox';
+    checkbox.checked = task.completed;
+    checkbox.addEventListener('click', (e) => e.stopPropagation());
+    checkbox.addEventListener('change', () => handleTaskToggle(task.id));
+
+    const title = document.createElement('div');
+    title.className = 'calendar-task-title';
+    title.textContent = task.title;
+
+    top.appendChild(checkbox);
+    top.appendChild(title);
+    card.appendChild(top);
+
+    const meta = document.createElement('div');
+    meta.className = 'calendar-task-meta';
+
+    if (task.list) {
+        const listObj = AppState.lists.find(l => l.id === task.list);
+        if (listObj) {
+            const listBadge = document.createElement('span');
+            listBadge.className = 'badge';
+            const textColor = getContrastTextColor(listObj.color);
+            listBadge.style.backgroundColor = listObj.color;
+            listBadge.style.color = textColor;
+            listBadge.textContent = listObj.name;
+            meta.appendChild(listBadge);
+        }
+    }
+
+    if (task.tags.length > 0) {
+        task.tags.slice(0, 2).forEach(tagName => {
+            const tagObj = AppState.tags.find(t => t.name === tagName);
+            if (!tagObj) {
+                return;
+            }
+            const tagBadge = document.createElement('span');
+            tagBadge.className = 'badge';
+            const textColor = getContrastTextColor(tagObj.color);
+            tagBadge.style.backgroundColor = tagObj.color;
+            tagBadge.style.color = textColor;
+            tagBadge.textContent = tagObj.name;
+            meta.appendChild(tagBadge);
+        });
+    }
+
+    if (meta.children.length > 0) {
+        card.appendChild(meta);
+    }
+
+    card.addEventListener('click', () => openTaskDetail(task.id));
+    return card;
+}
+
+function renderCalendarWeek(filteredTasks) {
+    DOM.tasksList.classList.add('calendar-view');
+
+    const weekStart = getWeekStartMonday(new Date());
+    const dayDates = Array.from({ length: 7 }, (_, index) => {
+        const day = new Date(weekStart);
+        day.setDate(weekStart.getDate() + index);
+        return day;
+    });
+    const dayKeys = dayDates.map(toIsoDateLocal);
+
+    const tasksByDay = new Map(dayKeys.map(key => [key, []]));
+    filteredTasks.forEach(task => {
+        if (!task.dueDate || !tasksByDay.has(task.dueDate)) {
+            return;
+        }
+        tasksByDay.get(task.dueDate).push(task);
+    });
+
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    const weekLabel = `${weekStart.toLocaleDateString('de-DE')} - ${weekEnd.toLocaleDateString('de-DE')}`;
+
+    const toolbar = document.createElement('div');
+    toolbar.className = 'calendar-toolbar';
+    toolbar.innerHTML = `
+        <button class="btn btn-sm btn-outline-secondary" type="button" data-calendar-nav="prev">
+            <i class="bi bi-chevron-left"></i> Vorherige Woche
+        </button>
+        <div class="calendar-toolbar-title">${weekLabel}</div>
+        <button class="btn btn-sm btn-outline-secondary" type="button" data-calendar-nav="next">
+            Nächste Woche <i class="bi bi-chevron-right"></i>
+        </button>
+    `;
+
+    toolbar.querySelector('[data-calendar-nav="prev"]').addEventListener('click', () => {
+        AppState.calendarWeekOffset -= 1;
+        renderTasks();
+    });
+    toolbar.querySelector('[data-calendar-nav="next"]').addEventListener('click', () => {
+        AppState.calendarWeekOffset += 1;
+        renderTasks();
+    });
+
+    const grid = document.createElement('div');
+    grid.className = 'calendar-grid';
+
+    dayDates.forEach((dayDate, index) => {
+        const dayKey = dayKeys[index];
+        const dayColumn = document.createElement('div');
+        dayColumn.className = 'calendar-day-column';
+        dayColumn.innerHTML = `
+            <div class="calendar-day-header">
+                <div class="calendar-day-name">${dayDate.toLocaleDateString('de-DE', { weekday: 'long' })}</div>
+                <div class="calendar-day-date">${dayDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}</div>
+            </div>
+            <div class="calendar-day-body"></div>
+        `;
+
+        const body = dayColumn.querySelector('.calendar-day-body');
+        const dayTasks = tasksByDay.get(dayKey) || [];
+        if (dayTasks.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'calendar-day-empty';
+            empty.textContent = 'Keine Aufgaben';
+            body.appendChild(empty);
+        } else {
+            dayTasks.forEach(task => {
+                body.appendChild(createCalendarTaskCard(task));
+            });
+        }
+
+        grid.appendChild(dayColumn);
+    });
+
+    DOM.tasksList.appendChild(toolbar);
+    DOM.tasksList.appendChild(grid);
 }
 
 function createTaskElement(task) {
@@ -519,71 +694,77 @@ function createTaskElement(task) {
 // Task Management
 // ========================================
 
-function handleAddTask() {
-    const newTask = {
-        id: Date.now(),
-        title: 'Neue Aufgabe',
-        description: '',
-        completed: false,
-        list: 'personal',
-        dueDate: null,
-        tags: [],
-        createdAt: new Date().toISOString()
-    };
-    
-    AppState.tasks.unshift(newTask);
-    AppState.selectedTask = newTask.id;
-    
-    renderTasks();
-    openTaskDetail(newTask.id);
-    
-    // Focus on title input
-    setTimeout(() => {
-        DOM.taskTitle.select();
-    }, 100);
-    
-    // TODO: Backend API call
-    // await API.createTask(newTask);
-}
+async function handleAddTask() {
+    try {
+        const defaultList = AppState.lists[0]?.id || null;
+        const createdTask = await API.createTask({
+            title: 'Neue Aufgabe',
+            description: '',
+            completed: false,
+            list: defaultList,
+            dueDate: null,
+            tags: []
+        });
+        AppState.tasks.unshift(createdTask);
+        AppState.selectedTask = createdTask.id;
 
-function handleTaskToggle(taskId) {
-    const task = AppState.tasks.find(t => t.id === taskId);
-    if (task) {
-        task.completed = !task.completed;
         renderTasks();
-        
-        // TODO: Backend API call
-        // await API.updateTask(taskId, { completed: task.completed });
+        openTaskDetail(createdTask.id);
+
+        setTimeout(() => {
+            DOM.taskTitle.select();
+        }, 100);
+    } catch (error) {
+        showInfoModal(error.message || 'Aufgabe konnte nicht erstellt werden.', 'Fehler');
     }
 }
 
-function handleSaveTask(e) {
+async function handleTaskToggle(taskId) {
+    const task = AppState.tasks.find(t => t.id === taskId);
+    if (!task) {
+        return;
+    }
+
+    const nextCompleted = !task.completed;
+    task.completed = nextCompleted;
+    renderTasks();
+
+    try {
+        const updated = await API.updateTask(taskId, { completed: nextCompleted });
+        Object.assign(task, updated);
+    } catch (error) {
+        task.completed = !nextCompleted;
+        renderTasks();
+        showNotification(error.message || 'Status konnte nicht gespeichert werden.', 'danger');
+    }
+}
+
+async function handleSaveTask(e) {
     e.preventDefault();
-    
+
     const taskId = AppState.selectedTask;
     const task = AppState.tasks.find(t => t.id === taskId);
-    
-    if (task) {
-        task.title = DOM.taskTitle.value;
-        task.description = DOM.taskDescription.value;
-        task.list = DOM.taskList.value;
-        task.dueDate = DOM.taskDueDate.value || null;
-        
-        // Update tags
-        const selectedTag = DOM.taskTags.value;
-        if (selectedTag && !task.tags.includes(selectedTag)) {
-            task.tags = [selectedTag];
-        } else if (!selectedTag) {
-            task.tags = [];
-        }
-        
+    if (!task) {
+        return;
+    }
+
+    const selectedTag = DOM.taskTags.value;
+    const payload = {
+        title: DOM.taskTitle.value.trim(),
+        description: DOM.taskDescription.value,
+        list: DOM.taskList.value || null,
+        dueDate: DOM.taskDueDate.value || null,
+        tags: selectedTag ? [selectedTag] : []
+    };
+
+    try {
+        const updated = await API.updateTask(taskId, payload);
+        Object.assign(task, updated);
         renderTasks();
         closeTaskDetail();
-        
-        // TODO: Backend API call
-        // await API.updateTask(taskId, task);
-        
         showNotification('Aufgabe gespeichert', 'success');
+    } catch (error) {
+        showInfoModal(error.message || 'Aufgabe konnte nicht gespeichert werden.', 'Fehler');
     }
 }
 
@@ -594,14 +775,15 @@ async function deleteTask(taskId) {
     );
     
     if (confirmed) {
-        AppState.tasks = AppState.tasks.filter(t => t.id !== taskId);
-        renderTasks();
-        closeTaskDetail();
-        
-        // TODO: Backend API call
-        // await API.deleteTask(taskId);
-        
-        showNotification('Aufgabe gelöscht', 'info');
+        try {
+            await API.deleteTask(taskId);
+            AppState.tasks = AppState.tasks.filter(t => t.id !== taskId);
+            renderTasks();
+            closeTaskDetail();
+            showNotification('Aufgabe gelöscht', 'info');
+        } catch (error) {
+            showInfoModal(error.message || 'Aufgabe konnte nicht gelöscht werden.', 'Fehler');
+        }
     }
 }
 
@@ -618,7 +800,7 @@ function openTaskDetail(taskId) {
     // Populate form
     DOM.taskTitle.value = task.title;
     DOM.taskDescription.value = task.description || '';
-    DOM.taskList.value = task.list || 'personal';
+    DOM.taskList.value = task.list || AppState.lists[0]?.id || '';
     DOM.taskDueDate.value = task.dueDate || '';
     DOM.taskTags.value = task.tags[0] || '';
     
@@ -675,13 +857,17 @@ function getFilteredTasks() {
             filtered = filtered.filter(task => task.dueDate);
             break;
     }
+
+    if (AppState.selectedListFilter) {
+        filtered = filtered.filter(task => task.list === AppState.selectedListFilter);
+    }
     
     // Filter by search query
     if (AppState.filterQuery) {
         const query = AppState.filterQuery.toLowerCase();
         filtered = filtered.filter(task => 
             task.title.toLowerCase().includes(query) ||
-            task.description.toLowerCase().includes(query)
+            (task.description || '').toLowerCase().includes(query)
         );
     }
     
@@ -693,37 +879,36 @@ function handleSearch(e) {
     renderTasks();
 }
 
-function handleViewChange(e) {
+async function handleViewChange(e) {
     e.preventDefault();
     
     const view = e.currentTarget.dataset.view;
-    AppState.currentView = view;
-    
-    // Update active state
-    document.querySelectorAll('[data-view]').forEach(link => {
-        link.classList.remove('active');
-    });
-    e.currentTarget.classList.add('active');
-    
-    // Update page title
-    const titles = {
-        'today': 'Today',
-        'upcoming': 'Upcoming',
-        'overview': 'Overview',
-        'calender': 'Calender'
-    };
-    DOM.pageTitle.textContent = titles[view] || 'Today';
-    
+    setCurrentView(view);
+
+    if (view === 'overview') {
+        try {
+            await refreshTasksFromApi();
+        } catch (error) {
+            showNotification(error.message || 'Aufgaben konnten nicht geladen werden.', 'danger');
+        }
+    }
+
     renderTasks();
 }
 
 function handleListFilter(e) {
     e.preventDefault();
-    
     const listId = e.currentTarget.dataset.list;
-    
-    // TODO: Implement list filtering
-    console.log('Filter by list:', listId);
+    AppState.selectedListFilter = AppState.selectedListFilter === listId ? null : listId;
+
+    document.querySelectorAll('[data-list]').forEach(link => {
+        link.classList.remove('active');
+    });
+    if (AppState.selectedListFilter) {
+        e.currentTarget.classList.add('active');
+    }
+
+    renderTasks();
 }
 
 // ========================================
@@ -746,7 +931,7 @@ function renderLists() {
         
         // Prüfe ob Liste geteilt ist
         const isShared = list.sharedWith && list.sharedWith.length > 0;
-        const isOwner = list.owner === AppState.currentUser;
+        const isOwner = Boolean(AppState.currentUser) && list.owner === AppState.currentUser;
         const sharedIcon = isShared ? '<i class="bi bi-people-fill text-muted ms-1" title="Geteilt"></i>' : '';
         const shareButton = isOwner ? `<i class="bi bi-share list-share-btn" data-list-id="${list.id}" title="Liste teilen"></i>` : '';
         
@@ -761,8 +946,11 @@ function renderLists() {
             </a>
         `;
         
-        // Add event listener for list filter
-        listItem.querySelector('a').addEventListener('click', handleListFilter);
+        const listLink = listItem.querySelector('a');
+        if (AppState.selectedListFilter === list.id) {
+            listLink.classList.add('active');
+        }
+        listLink.addEventListener('click', handleListFilter);
         
         // Add event listener for share button
         const shareBtn = listItem.querySelector('.list-share-btn');
@@ -780,12 +968,19 @@ function renderLists() {
     
     // Update list dropdown in task detail
     DOM.taskList.innerHTML = '';
-    AppState.lists.forEach(list => {
+    if (AppState.lists.length === 0) {
         const option = document.createElement('option');
-        option.value = list.id;
-        option.textContent = list.name;
+        option.value = '';
+        option.textContent = 'Keine Liste verfügbar';
         DOM.taskList.appendChild(option);
-    });
+    } else {
+        AppState.lists.forEach(list => {
+            const option = document.createElement('option');
+            option.value = list.id;
+            option.textContent = list.name;
+            DOM.taskList.appendChild(option);
+        });
+    }
 }
 
 function handleAddListClick(e) {
@@ -796,7 +991,7 @@ function handleAddListClick(e) {
     modal.show();
 }
 
-function handleSaveList() {
+async function handleSaveList() {
     const name = DOM.listName.value.trim();
     const color = DOM.listColor.value;
     
@@ -805,31 +1000,20 @@ function handleSaveList() {
         return;
     }
     
-    const newList = {
-        id: name.toLowerCase().replace(/\s+/g, '-'),
-        name: name,
-        color: color,
-        owner: AppState.currentUser,
-        sharedWith: []
-    };
-    
-    AppState.lists.push(newList);
-    
-    // Re-render lists (includes sidebar and dropdown)
-    renderLists();
-    
-    // Clear form
-    DOM.listName.value = '';
-    DOM.listColor.value = '#3498db';
-    
-    // Close modal
-    const modal = bootstrap.Modal.getInstance(document.getElementById('addListModal'));
-    modal.hide();
-    
-    // TODO: Backend API call
-    // await API.createList(newList);
-    
-    showNotification('Liste erstellt', 'success');
+    try {
+        const newList = await API.createList({ name, color });
+        AppState.lists.push(newList);
+        renderLists();
+
+        DOM.listName.value = '';
+        DOM.listColor.value = '#3498db';
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('addListModal'));
+        modal.hide();
+        showNotification('Liste erstellt', 'success');
+    } catch (error) {
+        showInfoModal(error.message || 'Liste konnte nicht erstellt werden.', 'Fehler');
+    }
 }
 
 // ========================================
@@ -1010,7 +1194,7 @@ function renderTags() {
 
 let editingTagIndex = null;
 
-function handleSaveTag() {
+async function handleSaveTag() {
     const name = DOM.tagName.value.trim().toLowerCase();
     const color = DOM.tagColor.value;
     
@@ -1029,20 +1213,24 @@ function handleSaveTag() {
             return;
         }
         
-        // Update Tag
-        AppState.tags[editingTagIndex] = {
-            name: name,
-            color: color
-        };
-        
-        // Update alle Tasks mit diesem Tag
-        AppState.tasks.forEach(task => {
-            task.tags = task.tags.map(t => t === oldTag.name ? name : t);
-        });
-        
-        renderTasks();
-        showNotification('Tag aktualisiert', 'success');
-        editingTagIndex = null;
+        try {
+            const updatedTag = await API.updateTag(oldTag.name, {
+                name,
+                color
+            });
+
+            AppState.tags[editingTagIndex] = updatedTag;
+            AppState.tasks.forEach(task => {
+                task.tags = task.tags.map(t => t === oldTag.name ? updatedTag.name : t);
+            });
+
+            renderTasks();
+            showNotification('Tag aktualisiert', 'success');
+            editingTagIndex = null;
+        } catch (error) {
+            showInfoModal(error.message || 'Tag konnte nicht aktualisiert werden.', 'Fehler');
+            return;
+        }
     } else {
         // Neuer Tag
         // Prüfe ob Tag bereits existiert
@@ -1051,17 +1239,17 @@ function handleSaveTag() {
             return;
         }
         
-        const newTag = {
-            name: name,
-            color: color
-        };
-        
-        AppState.tags.push(newTag);
-        
-        // TODO: Backend API call
-        // await API.createTag(newTag);
-        
-        showNotification('Tag erstellt', 'success');
+        try {
+            const newTag = await API.createTag({
+                name,
+                color
+            });
+            AppState.tags.push(newTag);
+            showNotification('Tag erstellt', 'success');
+        } catch (error) {
+            showInfoModal(error.message || 'Tag konnte nicht erstellt werden.', 'Fehler');
+            return;
+        }
     }
     
     // Re-render tags
@@ -1069,7 +1257,7 @@ function handleSaveTag() {
     
     // Clear form
     DOM.tagName.value = '';
-    DOM.tagColor.value = 'danger';
+    DOM.tagColor.value = '#dc3545';
     
     // Reset Modal Title
     document.querySelector('#addTagModal .modal-title').textContent = 'Add New Tag';
@@ -1112,22 +1300,20 @@ async function handleDeleteTag(index) {
         return;
     }
     
-    // Remove tag from all tasks
-    AppState.tasks.forEach(task => {
-        task.tags = task.tags.filter(t => t !== tag.name);
-    });
-    
-    // Remove tag
-    AppState.tags.splice(index, 1);
-    
-    // Re-render
-    renderTags();
-    renderTasks();
-    
-    // TODO: Backend API call
-    // await API.deleteTag(tag.name);
-    
-    showNotification('Tag gelöscht', 'info');
+    try {
+        await API.deleteTag(tag.name);
+
+        AppState.tasks.forEach(task => {
+            task.tags = task.tags.filter(t => t !== tag.name);
+        });
+        AppState.tags.splice(index, 1);
+
+        renderTags();
+        renderTasks();
+        showNotification('Tag gelöscht', 'info');
+    } catch (error) {
+        showInfoModal(error.message || 'Tag konnte nicht gelöscht werden.', 'Fehler');
+    }
 }
 
 // ========================================
@@ -1176,8 +1362,43 @@ function formatDate(dateString) {
 }
 
 function showNotification(message, type = 'info') {
-    // TODO: Implement toast notifications with Bootstrap
-    console.log(`[${type.toUpperCase()}] ${message}`);
+    const iconByType = {
+        success: 'check-circle-fill',
+        danger: 'exclamation-triangle-fill',
+        info: 'info-circle-fill'
+    };
+    const bgByType = {
+        success: 'text-bg-success',
+        danger: 'text-bg-danger',
+        info: 'text-bg-primary'
+    };
+
+    let container = document.getElementById('appToastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'appToastContainer';
+        container.className = 'toast-container position-fixed top-0 end-0 p-3';
+        container.style.zIndex = '1080';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center ${bgByType[type] || bgByType.info} border-0`;
+    toast.role = 'alert';
+    toast.ariaLive = 'assertive';
+    toast.ariaAtomic = 'true';
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-${iconByType[type] || iconByType.info} me-2"></i>${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+    container.appendChild(toast);
+    const toastInstance = new bootstrap.Toast(toast, { delay: 3200 });
+    toastInstance.show();
+    toast.addEventListener('hidden.bs.toast', () => toast.remove());
 }
 
 async function handleLogout(e) {
@@ -1200,56 +1421,82 @@ async function handleLogout(e) {
 }
 
 // ========================================
-// API Integration (Vorbereitet für Backend)
+// API Integration
 // ========================================
 
 const API = {
-    baseURL: '/api', // Wird später konfiguriert
-    
-    // Tasks
+    baseURL: '/api',
+
+    async request(path, init = {}) {
+        const headers = { ...(init.headers || {}) };
+        const requestInit = {
+            method: init.method || 'GET',
+            credentials: 'include',
+            headers
+        };
+
+        if (init.body !== undefined) {
+            headers['Content-Type'] = 'application/json';
+            requestInit.body = JSON.stringify(init.body);
+        }
+
+        const response = await fetch(`${this.baseURL}${path}`, requestInit);
+        let body = null;
+        try {
+            body = await response.json();
+        } catch {
+            body = null;
+        }
+
+        if (!response.ok) {
+            const message = body?.error || `API request failed (${response.status})`;
+            const error = new Error(message);
+            error.status = response.status;
+            throw error;
+        }
+        return body;
+    },
+
     async getTasks() {
-        // return await fetch(`${this.baseURL}/tasks`).then(r => r.json());
-        return AppState.tasks;
+        return this.request('/tasks');
     },
-    
+
     async createTask(task) {
-        // return await fetch(`${this.baseURL}/tasks`, {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(task)
-        // }).then(r => r.json());
-        console.log('API: Create task', task);
+        return this.request('/tasks', { method: 'POST', body: task });
     },
-    
+
     async updateTask(id, updates) {
-        // return await fetch(`${this.baseURL}/tasks/${id}`, {
-        //     method: 'PUT',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(updates)
-        // }).then(r => r.json());
-        console.log('API: Update task', id, updates);
+        return this.request(`/tasks/${id}`, { method: 'PUT', body: updates });
     },
-    
+
     async deleteTask(id) {
-        // return await fetch(`${this.baseURL}/tasks/${id}`, {
-        //     method: 'DELETE'
-        // }).then(r => r.json());
-        console.log('API: Delete task', id);
+        return this.request(`/tasks/${id}`, { method: 'DELETE' });
     },
-    
-    // Lists
+
     async getLists() {
-        // return await fetch(`${this.baseURL}/lists`).then(r => r.json());
-        return AppState.lists;
+        return this.request('/lists');
     },
-    
+
     async createList(list) {
-        // return await fetch(`${this.baseURL}/lists`, {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(list)
-        // }).then(r => r.json());
-        console.log('API: Create list', list);
+        return this.request('/lists', { method: 'POST', body: list });
+    },
+
+    async getTags() {
+        return this.request('/tags');
+    },
+
+    async createTag(tag) {
+        return this.request('/tags', { method: 'POST', body: tag });
+    },
+
+    async updateTag(tagName, payload) {
+        const encodedTag = encodeURIComponent(tagName);
+        return this.request(`/tags/${encodedTag}`, { method: 'PUT', body: payload });
+    },
+
+    async deleteTag(tagName) {
+        const encodedTag = encodeURIComponent(tagName);
+        return this.request(`/tags/${encodedTag}`, { method: 'DELETE' });
     }
 };
 
