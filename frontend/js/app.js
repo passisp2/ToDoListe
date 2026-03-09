@@ -147,18 +147,29 @@ function initializeApp() {
  * Lädt den aktuellen Benutzer aus der Session
  */
 function loadCurrentUser() {
-    // Versuche Benutzername aus Session-Cookie zu laden
-    if (typeof window.CookieManager !== 'undefined') {
-        const session = window.CookieManager.get('todo_session');
-        if (session) {
-            try {
-                const sessionData = JSON.parse(session);
-                AppState.currentUser = sessionData.username || 'admin';
-            } catch (e) {
-                AppState.currentUser = 'admin';
-            }
+    // Auth-User kommt aus auth.js (/auth/me + Refresh).
+    if (typeof window.getCurrentUser === 'function') {
+        const user = window.getCurrentUser();
+        if (user?.email) {
+            AppState.currentUser = user.email;
+            return;
         }
     }
+
+    try {
+        const cached = localStorage.getItem('authUser');
+        if (cached) {
+            const user = JSON.parse(cached);
+            if (user?.email) {
+                AppState.currentUser = user.email;
+                return;
+            }
+        }
+    } catch (e) {
+        console.error('Error loading authUser from localStorage:', e);
+    }
+
+    AppState.currentUser = 'admin';
 }
 
 /**

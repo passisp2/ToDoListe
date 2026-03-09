@@ -31,17 +31,17 @@
                 <!-- Alert Container -->
                 <div id="alertContainer"></div>
                 
-                <!-- Username Field -->
+                <!-- Email Field -->
                 <div class="mb-3">
-                    <label for="username" class="form-label">
-                        <i class="bi bi-person me-2"></i>Benutzername
+                    <label for="email" class="form-label">
+                        <i class="bi bi-envelope me-2"></i>E-Mail
                     </label>
                     <input 
-                        type="text" 
+                        type="email" 
                         class="form-control" 
-                        id="username" 
-                        placeholder="Benutzername eingeben"
-                        autocomplete="username"
+                        id="email" 
+                        placeholder="E-Mail eingeben"
+                        autocomplete="email"
                         required
                     >
                 </div>
@@ -84,6 +84,11 @@
                         Wird angemeldet...
                     </span>
                 </button>
+
+                <p class="auth-switch mt-3 mb-0">
+                    Noch kein Konto?
+                    <a href="register.html">Registrieren</a>
+                </p>
             </form>
             
             <!-- Footer Info -->
