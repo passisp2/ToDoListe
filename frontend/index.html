@@ -81,18 +81,6 @@
                         </h6>
                         <ul class="nav flex-column" id="listContainer">
                             <li class="nav-item">
-                                <a class="nav-link" href="#" data-list="personal">
-                                    <span class="badge rounded-circle me-2" style="background-color: #9b59b6;">&nbsp;</span>
-                                    Personal
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#" data-list="work">
-                                    <span class="badge rounded-circle me-2" style="background-color: #3498db;">&nbsp;</span>
-                                    Work
-                                </a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link text-muted" href="#" id="addListBtn">
                                     <i class="bi bi-plus-lg me-2"></i>
                                     Add List
@@ -107,11 +95,7 @@
                             Tags
                         </h6>
                         <div class="px-3 mb-2">
-                            <div class="d-flex flex-wrap gap-2" id="tagsContainer">
-                                <span class="badge bg-danger">high</span>
-                                <span class="badge bg-warning text-dark">medium</span>
-                                <span class="badge bg-success">low</span>
-                            </div>
+                            <div class="d-flex flex-wrap gap-2" id="tagsContainer"></div>
                             <a class="text-muted small mt-2 d-inline-block" href="#" id="addTagBtn" data-bs-toggle="modal" data-bs-target="#addTagModal">
                                 <i class="bi bi-plus-lg me-1"></i> Add Tag
                             </a>
@@ -194,8 +178,7 @@
                                     <i class="bi bi-check-circle me-2"></i>List:
                                 </label>
                                 <select class="form-select" id="taskList">
-                                    <option value="personal">Personal</option>
-                                    <option value="work">Work</option>
+                                    <option value="">Keine Liste verfügbar</option>
                                 </select>
                             </div>
                             
@@ -214,9 +197,6 @@
                                 </label>
                                 <select class="form-select" id="taskTags">
                                     <option value="">Select tag...</option>
-                                    <option value="high">high</option>
-                                    <option value="medium">medium</option>
-                                    <option value="low">low</option>
                                 </select>
                             </div>
                             
