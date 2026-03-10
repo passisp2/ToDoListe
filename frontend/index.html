@@ -33,8 +33,8 @@
                             <i class="bi bi-check2-circle"></i>
                         </div>
                         <div>
-                            <p class="brand-overline mb-0">Produktiv bleiben</p>
-                            <h4 class="sidebar-heading mb-0">Taskboard</h4>
+                            <p class="brand-overline mb-0" data-i18n="brand_overline">Produktiv bleiben</p>
+                            <h4 class="sidebar-heading mb-0" data-i18n="brand_title">Taskboard</h4>
                         </div>
                         <button class="btn btn-link p-0 d-md-none sidebar-close" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-label="Menü schließen">
                             <i class="bi bi-list fs-4"></i>
@@ -47,38 +47,38 @@
                             <span class="input-group-text border-end-0">
                                 <i class="bi bi-search text-muted"></i>
                             </span>
-                            <input type="text" class="form-control border-start-0 ps-0" placeholder="Aufgaben durchsuchen..." id="searchInput">
+                            <input type="text" class="form-control border-start-0 ps-0" placeholder="Aufgaben durchsuchen..." id="searchInput" data-i18n-placeholder="search_placeholder">
                         </div>
                     </div>
 
                     <!-- Tasks Section -->
                     <div class="sidebar-section mb-4">
                         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-2 text-muted">
-                            Tasks
+                            <span data-i18n="nav_tasks">Aufgaben</span>
                         </h6>
                         <ul class="nav flex-column">
                             <li class="nav-item">
                                 <a class="nav-link active" href="#" data-view="today">
                                     <i class="bi bi-calendar-check me-2"></i>
-                                    Heute
+                                    <span data-i18n="nav_today">Heute</span>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#" data-view="upcoming">
                                     <i class="bi bi-chevron-right me-2"></i>
-                                    Demnächst
+                                    <span data-i18n="nav_upcoming">Demnächst</span>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#" data-view="overview">
                                     <i class="bi bi-grid me-2"></i>
-                                    Überblick
+                                    <span data-i18n="nav_overview">Überblick</span>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#" data-view="calender">
                                     <i class="bi bi-calendar me-2"></i>
-                                    Kalender
+                                    <span data-i18n="nav_calendar">Kalender</span>
                                 </a>
                             </li>
                         </ul>
@@ -87,16 +87,16 @@
                     <!-- Lists Section -->
                     <div class="sidebar-section mb-4">
                         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-2 text-muted">
-                            <span>Lists</span>
+                            <span data-i18n="nav_lists">Listen</span>
                             <a class="link-secondary section-link" href="#" data-bs-toggle="modal" data-bs-target="#addListModal">
-                                <i class="bi bi-person-plus"></i> Invite
+                                <i class="bi bi-person-plus"></i> <span data-i18n="invite">Einladen</span>
                             </a>
                         </h6>
                         <ul class="nav flex-column" id="listContainer">
                             <li class="nav-item">
                                 <a class="nav-link text-muted" href="#" id="addListBtn">
                                     <i class="bi bi-plus-lg me-2"></i>
-                                    Neue Liste
+                                    <span data-i18n="new_list">Neue Liste</span>
                                 </a>
                             </li>
                         </ul>
@@ -105,12 +105,12 @@
                     <!-- Tags Section -->
                     <div class="sidebar-section mb-4">
                         <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mb-2 text-muted">
-                            Tags
+                            <span data-i18n="nav_tags">Tags</span>
                         </h6>
                         <div class="px-3 mb-2">
                             <div class="d-flex flex-wrap gap-2" id="tagsContainer"></div>
                             <a class="text-muted small mt-2 d-inline-block section-link" href="#" id="addTagBtn" data-bs-toggle="modal" data-bs-target="#addTagModal">
-                                <i class="bi bi-plus-lg me-1"></i> Add Tag
+                                <i class="bi bi-plus-lg me-1"></i> <span data-i18n="add_tag">Tag hinzufügen</span>
                             </a>
                         </div>
                     </div>
@@ -122,13 +122,13 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#settingsModal">
                                     <i class="bi bi-gear me-2"></i>
-                                    Settings
+                                    <span data-i18n="settings">Einstellungen</span>
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#" id="logoutBtn">
                                     <i class="bi bi-box-arrow-right me-2"></i>
-                                    Log out
+                                    <span data-i18n="logout">Abmelden</span>
                                 </a>
                             </li>
                         </ul>
@@ -148,15 +148,15 @@
                 <!-- Page Title -->
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-2 page-header">
                     <div>
-                        <p class="page-overline mb-1">Dein Fokus heute</p>
+                        <p class="page-overline mb-1" data-i18n="page_overline">Dein Fokus heute</p>
                         <h1 class="h2 mb-0" id="pageTitle">Heute</h1>
                     </div>
                 </div>
 
                 <div class="d-flex align-items-center justify-content-between mb-3 action-row">
-                    <p class="mb-0 text-muted small">Plane, priorisiere und hake Aufgaben sauber ab.</p>
+                    <p class="mb-0 text-muted small" data-i18n="page_subtitle">Plane, priorisiere und hake Aufgaben sauber ab.</p>
                     <button class="btn text-decoration-none" id="addTaskBtn">
-                        <i class="bi bi-plus-lg me-2"></i>Neue Aufgabe
+                        <i class="bi bi-plus-lg me-2"></i><span data-i18n="add_task">Neue Aufgabe</span>
                     </button>
                 </div>
 
@@ -173,36 +173,36 @@
                 <div class="card border-0 h-100 detail-card">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="card-title mb-0">Task:</h5>
+                            <h5 class="card-title mb-0" data-i18n="task_header">Aufgabe:</h5>
                             <button type="button" class="btn-close" id="closeTaskDetail"></button>
                         </div>
 
                         <form id="taskDetailForm">
                             <!-- Task Title -->
                             <div class="mb-3">
-                                <input type="text" class="form-control fw-bold" id="taskTitle" placeholder="Task Title" required>
+                                <input type="text" class="form-control fw-bold" id="taskTitle" placeholder="Aufgabentitel" data-i18n-placeholder="task_title_placeholder" required>
                             </div>
                             
                             <!-- Description -->
                             <div class="mb-3">
-                                <label for="taskDescription" class="form-label text-muted">Description</label>
-                                <textarea class="form-control" id="taskDescription" rows="4" placeholder="Add description..."></textarea>
+                                <label for="taskDescription" class="form-label text-muted" data-i18n="description">Beschreibung</label>
+                                <textarea class="form-control" id="taskDescription" rows="4" placeholder="Beschreibung hinzufügen..." data-i18n-placeholder="description_placeholder"></textarea>
                             </div>
 
                             <!-- List Selection -->
                             <div class="mb-3">
                                 <label for="taskList" class="form-label">
-                                    <i class="bi bi-check-circle me-2"></i>List:
+                                    <i class="bi bi-check-circle me-2"></i><span data-i18n="list_label">Liste:</span>
                                 </label>
                                 <select class="form-select" id="taskList">
-                                    <option value="">Keine Liste verfügbar</option>
+                                    <option value="" data-i18n="no_list_available">Keine Liste verfügbar</option>
                                 </select>
                             </div>
                             
                             <!-- Due Date -->
                             <div class="mb-3">
                                 <label for="taskDueDate" class="form-label">
-                                    <i class="bi bi-check-circle me-2"></i>Due Date:
+                                    <i class="bi bi-check-circle me-2"></i><span data-i18n="due_date">Fälligkeitsdatum:</span>
                                 </label>
                                 <input type="date" class="form-control" id="taskDueDate">
                             </div>
@@ -210,17 +210,17 @@
                             <!-- Tags -->
                             <div class="mb-4">
                                 <label for="taskTags" class="form-label">
-                                    <i class="bi bi-check-circle me-2"></i>Tags:
+                                    <i class="bi bi-check-circle me-2"></i><span data-i18n="tags_label">Tags:</span>
                                 </label>
                                 <select class="form-select" id="taskTags">
-                                    <option value="">Select tag...</option>
+                                    <option value="" data-i18n="select_tag">Tag auswählen...</option>
                                 </select>
                             </div>
                             
                             <!-- Action Buttons -->
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-outline-secondary flex-fill" id="cancelTaskBtn">Cancel</button>
-                                <button type="submit" class="btn btn-primary flex-fill">Save Changes</button>
+                                <button type="button" class="btn btn-outline-secondary flex-fill" id="cancelTaskBtn" data-i18n="cancel">Abbrechen</button>
+                                <button type="submit" class="btn btn-primary flex-fill" data-i18n="save_changes">Speichern</button>
                             </div>
                         </form>
                     </div>
@@ -234,24 +234,24 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add New List</h5>
+                    <h5 class="modal-title" data-i18n="add_new_list">Neue Liste erstellen</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addListForm">
                         <div class="mb-3">
-                            <label for="listName" class="form-label">List Name</label>
+                            <label for="listName" class="form-label" data-i18n="list_name">Listenname</label>
                             <input type="text" class="form-control" id="listName" required>
                         </div>
                         <div class="mb-3">
-                            <label for="listColor" class="form-label">Color</label>
+                            <label for="listColor" class="form-label" data-i18n="color">Farbe</label>
                             <input type="color" class="form-control form-control-color" id="listColor" value="#3498db">
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="saveListBtn">Save List</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="cancel">Abbrechen</button>
+                    <button type="button" class="btn btn-primary" id="saveListBtn" data-i18n="save_list">Liste speichern</button>
                 </div>
             </div>
         </div>
@@ -262,30 +262,30 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add New Tag</h5>
+                    <h5 class="modal-title" data-i18n="add_new_tag">Neuen Tag erstellen</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" id="closeTagModal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="addTagForm">
                         <div class="mb-3">
-                            <label for="tagName" class="form-label">Tag Name</label>
+                            <label for="tagName" class="form-label" data-i18n="tag_name">Tag-Name</label>
                             <input type="text" class="form-control" id="tagName" required>
                         </div>
                         <div class="mb-3">
-                            <label for="tagColor" class="form-label">Color</label>
+                            <label for="tagColor" class="form-label" data-i18n="color">Farbe</label>
                             <div class="d-flex align-items-center gap-3">
-                                <input type="color" class="form-control form-control-color" id="tagColor" value="#dc3545" title="Wahle eine Farbe">
+                                <input type="color" class="form-control form-control-color" id="tagColor" value="#dc3545" title="Wähle eine Farbe" data-i18n-title="choose_color">
                                 <div class="flex-grow-1">
                                     <div class="tag-preview badge" id="tagPreview">Vorschau</div>
                                 </div>
                             </div>
-                            <small class="form-text text-muted">Die Textfarbe wird automatisch angepasst fur beste Lesbarkeit</small>
+                            <small class="form-text text-muted" data-i18n="tag_hint">Die Textfarbe wird automatisch angepasst für beste Lesbarkeit</small>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelTagBtn">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="saveTagBtn">Save Tag</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelTagBtn" data-i18n="cancel">Abbrechen</button>
+                    <button type="button" class="btn btn-primary" id="saveTagBtn" data-i18n="save_tag">Tag speichern</button>
                 </div>
             </div>
         </div>
@@ -296,42 +296,42 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Liste teilen</h5>
+                    <h5 class="modal-title" data-i18n="share_title">Liste teilen</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-muted mb-3">Geben Sie den Benutzernamen ein, mit dem Sie die Liste "<span id="shareListName"></span>" teilen mochten:</p>
+                    <p class="text-muted mb-3"><span data-i18n="share_intro">Geben Sie den Benutzernamen ein, mit dem Sie die Liste</span> "<span id="shareListName"></span>" <span data-i18n="share_intro_suffix">teilen möchten:</span></p>
                     <form id="shareListForm">
                         <div class="mb-3">
-                            <label for="shareUsername" class="form-label">Benutzername</label>
-                            <input type="text" class="form-control" id="shareUsername" placeholder="z.B. max.mustermann" required>
+                            <label for="shareUsername" class="form-label" data-i18n="username">Benutzername</label>
+                            <input type="text" class="form-control" id="shareUsername" placeholder="z.B. max.mustermann" data-i18n-placeholder="username_placeholder" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Berechtigungen</label>
+                            <label class="form-label" data-i18n="permissions">Berechtigungen</label>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="sharePermission" id="shareReadOnly" value="read" checked>
                                 <label class="form-check-label" for="shareReadOnly">
-                                    <i class="bi bi-eye me-1"></i> Nur Ansehen
+                                    <i class="bi bi-eye me-1"></i> <span data-i18n="permission_read">Nur ansehen</span>
                                 </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="sharePermission" id="shareEdit" value="edit">
                                 <label class="form-check-label" for="shareEdit">
-                                    <i class="bi bi-pencil me-1"></i> Bearbeiten
+                                    <i class="bi bi-pencil me-1"></i> <span data-i18n="permission_edit">Bearbeiten</span>
                                 </label>
                             </div>
                         </div>
                         <div id="sharedUsersList" class="mt-4">
-                            <h6 class="text-muted">Geteilt mit:</h6>
+                            <h6 class="text-muted" data-i18n="shared_with">Geteilt mit:</h6>
                             <div id="sharedUsersContainer">
-                                <p class="text-muted small">Diese Liste wurde noch nicht geteilt.</p>
+                                <p class="text-muted small" data-i18n="not_shared_yet">Diese Liste wurde noch nicht geteilt.</p>
                             </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="btn btn-primary" id="shareListBtn">Teilen</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="cancel">Abbrechen</button>
+                    <button type="button" class="btn btn-primary" id="shareListBtn" data-i18n="share">Teilen</button>
                 </div>
             </div>
         </div>
@@ -342,13 +342,13 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="confirmModalTitle">Bestatigung</h5>
+                    <h5 class="modal-title" id="confirmModalTitle">Bestätigung</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="confirmModalBody"></div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="btn btn-primary" id="confirmModalBtn">Bestatigen</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="cancel">Abbrechen</button>
+                    <button type="button" class="btn btn-primary" id="confirmModalBtn" data-i18n="confirm">Bestätigen</button>
                 </div>
             </div>
         </div>
@@ -364,7 +364,7 @@
                 </div>
                 <div class="modal-body" id="infoModalBody"></div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-i18n="ok">OK</button>
                 </div>
             </div>
         </div>
@@ -375,24 +375,31 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Settings</h5>
+                    <h5 class="modal-title" data-i18n="settings">Einstellungen</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Theme</label>
+                        <label class="form-label" data-i18n="theme">Theme</label>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="theme" id="themeLight" value="light" checked>
-                            <label class="form-check-label" for="themeLight">Light</label>
+                            <label class="form-check-label" for="themeLight" data-i18n="theme_light">Hell</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="theme" id="themeDark" value="dark">
-                            <label class="form-check-label" for="themeDark">Dark</label>
+                            <label class="form-check-label" for="themeDark" data-i18n="theme_dark">Dunkel</label>
                         </div>
+                    </div>
+                    <div class="mb-1">
+                        <label class="form-label" for="appLanguage" data-i18n="language">Sprache</label>
+                        <select id="appLanguage" class="form-select">
+                            <option value="de">Deutsch</option>
+                            <option value="en">English</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="close">Schließen</button>
                 </div>
             </div>
         </div>
