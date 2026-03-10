@@ -1,85 +1,94 @@
 /* ========================================
-   Global Styles
+   Design Tokens
    ======================================== */
 
 :root {
-    --sidebar-bg: #f8f9fa;
-    --sidebar-width: 260px;
-    --main-bg: #ffffff;
-    --text-primary: #212529;
-    --text-secondary: #6c757d;
-    --border-color: #dee2e6;
-    --active-bg: #e9ecef;
-    --hover-bg: #f1f3f5;
-    --primary-color: #0d6efd;
-    --input-bg: #ffffff;
-    --card-bg: #ffffff;
+    --font-body: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+    --font-display: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+
+    --bg-page: #f2f6fb;
+    --bg-shell: #ffffff;
+    --bg-panel: #f8fbff;
+    --bg-soft: #eef3fa;
+    --bg-hover: #e7eef8;
+    --bg-active: #dbe8f7;
+
+    --text-primary: #10243e;
+    --text-secondary: #556780;
+    --text-muted: #7d8ca2;
+
+    --accent: #0f766e;
+    --accent-strong: #0a5e58;
+    --accent-soft: #d8efec;
+
+    --danger: #dc3545;
+    --warning: #f59f00;
+    --success: #198754;
+
+    --border-color: #d6e0ed;
+    --shadow-soft: 0 10px 30px rgba(16, 36, 62, 0.08);
+    --shadow-panel: 0 18px 48px rgba(16, 36, 62, 0.1);
+
+    --sidebar-width: 280px;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
 }
 
-/* Dark Mode Theme */
 [data-theme="dark"] {
-    --sidebar-bg: #1a1d23;
-    --main-bg: #0d1117;
-    --text-primary: #e6edf3;
-    --text-secondary: #8b949e;
-    --border-color: #30363d;
-    --active-bg: #21262d;
-    --hover-bg: #161b22;
-    --primary-color: #58a6ff;
-    --input-bg: #0d1117;
-    --card-bg: #161b22;
+    --bg-page: #0f1726;
+    --bg-shell: #131d2f;
+    --bg-panel: #19253a;
+    --bg-soft: #21314a;
+    --bg-hover: #253853;
+    --bg-active: #2c4363;
+    --text-primary: #e6edf7;
+    --text-secondary: #9db0c8;
+    --text-muted: #869ab5;
+    --border-color: #30425f;
 }
 
-[data-theme="dark"] .modal-content {
-    background-color: var(--card-bg);
-    color: var(--text-primary);
+[data-theme="dark"] body {
+    background:
+        radial-gradient(circle at 10% 15%, rgba(14, 116, 110, 0.25) 0%, rgba(14, 116, 110, 0) 36%),
+        radial-gradient(circle at 88% 16%, rgba(37, 99, 235, 0.24) 0%, rgba(37, 99, 235, 0) 34%),
+        linear-gradient(180deg, #0f1726 0%, #0b1320 100%);
 }
 
-[data-theme="dark"] .btn-close {
-    filter: invert(1);
+[data-theme="dark"] .sidebar {
+    background: linear-gradient(180deg, #162338 0%, #122034 100%);
+}
+
+[data-theme="dark"] .search-group,
+[data-theme="dark"] .task-list-shell,
+[data-theme="dark"] .detail-card,
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .calendar-task-card,
+[data-theme="dark"] .calendar-day-column {
+    background: var(--bg-shell);
+}
+
+[data-theme="dark"] .calendar-day-header {
+    background-color: var(--bg-soft);
 }
 
 [data-theme="dark"] .form-control,
 [data-theme="dark"] .form-select,
 [data-theme="dark"] .input-group-text {
-    background-color: var(--input-bg);
+    background-color: var(--bg-shell);
     color: var(--text-primary);
     border-color: var(--border-color);
 }
 
 [data-theme="dark"] .form-control:focus,
 [data-theme="dark"] .form-select:focus {
-    background-color: var(--input-bg);
+    background-color: var(--bg-shell);
     color: var(--text-primary);
-    border-color: var(--primary-color);
 }
 
 [data-theme="dark"] .modal-header,
 [data-theme="dark"] .modal-footer {
     border-color: var(--border-color);
-}
-
-[data-theme="dark"] .btn-outline-secondary {
-    color: var(--text-primary);
-    border-color: var(--border-color);
-}
-
-[data-theme="dark"] .btn-outline-secondary:hover {
-    background-color: var(--hover-bg);
-    border-color: var(--border-color);
-    color: var(--text-primary);
-}
-
-[data-theme="dark"] .text-muted {
-    color: var(--text-secondary) !important;
-}
-
-[data-theme="dark"] .link-secondary {
-    color: var(--text-secondary) !important;
-}
-
-[data-theme="dark"] .link-secondary:hover {
-    color: var(--text-primary) !important;
 }
 
 * {
@@ -88,20 +97,52 @@
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     height: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    color: var(--text-primary);
-    background-color: var(--main-bg);
-    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
+    font-family: var(--font-body);
+    color: var(--text-primary);
+    background:
+        radial-gradient(circle at 10% 15%, #e6fff7 0%, rgba(230, 255, 247, 0) 36%),
+        radial-gradient(circle at 88% 16%, #e3edff 0%, rgba(227, 237, 255, 0) 34%),
+        linear-gradient(180deg, #f8fbff 0%, var(--bg-page) 100%);
     overflow-x: hidden;
 }
 
+.bg-orb {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1;
+    filter: blur(1px);
+}
+
+.orb-1 {
+    width: 320px;
+    height: 320px;
+    background: rgba(15, 118, 110, 0.08);
+    top: -90px;
+    left: -110px;
+}
+
+.orb-2 {
+    width: 380px;
+    height: 380px;
+    background: rgba(37, 99, 235, 0.09);
+    right: -140px;
+    bottom: -130px;
+}
+
+.app-shell {
+    position: relative;
+    z-index: 2;
+}
+
 /* ========================================
-   Sidebar Styles
+   Sidebar
    ======================================== */
 
 .sidebar {
@@ -110,208 +151,255 @@ body {
     bottom: 0;
     left: 0;
     z-index: 100;
-    padding: 0;
-    background-color: var(--sidebar-bg);
+    width: var(--sidebar-width);
+    background: linear-gradient(180deg, #fbfdff 0%, #f4f8ff 100%);
     border-right: 1px solid var(--border-color);
+    box-shadow: 10px 0 32px rgba(16, 36, 62, 0.06);
     overflow-y: auto;
 }
 
 .sidebar-sticky {
     position: relative;
-    height: calc(100vh - 48px);
-    padding-top: 0.5rem;
-    overflow-x: hidden;
-    overflow-y: auto;
+    min-height: 100vh;
+    padding: 1rem 0 1.4rem;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.brand-mark {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(140deg, var(--accent) 0%, #2563eb 100%);
+    color: #fff;
+    font-size: 1.25rem;
+    box-shadow: 0 10px 16px rgba(15, 118, 110, 0.25);
+}
+
+.brand-overline {
+    font-size: 0.67rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    font-weight: 700;
 }
 
 .sidebar-heading {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    font-weight: 600;
-    letter-spacing: 0.5px;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
 }
 
-/* Sidebar Navigation */
-.sidebar .nav-link {
-    font-weight: 400;
+.sidebar-section .sidebar-heading {
+    font-family: var(--font-body);
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    font-weight: 800;
+}
+
+.section-link {
+    font-size: 0.78rem;
+    text-decoration: none;
+    color: var(--text-secondary);
+}
+
+.section-link:hover {
+    color: var(--accent-strong);
+}
+
+.sidebar-close {
+    margin-left: auto;
+    color: var(--text-secondary);
+}
+
+.search-group {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background: #fff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.search-group .input-group-text,
+.search-group .form-control {
+    border: none;
+    background: transparent;
+}
+
+.search-group .form-control {
+    font-size: 0.92rem;
     color: var(--text-primary);
-    padding: 0.5rem 1rem;
-    margin: 2px 8px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
+}
+
+.search-group .form-control:focus {
+    box-shadow: none;
+}
+
+.sidebar .nav-link {
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 0.58rem 0.85rem;
+    margin: 4px 10px;
+    border-radius: var(--radius-sm);
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
     display: flex;
     align-items: center;
 }
 
 .sidebar .nav-link:hover {
-    background-color: var(--hover-bg);
+    background-color: var(--bg-hover);
     color: var(--text-primary);
+    transform: translateX(2px);
 }
 
 .sidebar .nav-link.active {
-    background-color: var(--active-bg);
-    color: var(--primary-color);
-    font-weight: 500;
+    background: linear-gradient(135deg, #e3f2ff 0%, var(--accent-soft) 100%);
+    color: var(--accent-strong);
+    font-weight: 700;
 }
 
 .sidebar .nav-link i {
     font-size: 1rem;
 }
 
-/* Search Input */
-.sidebar .input-group-text {
-    background-color: transparent;
-    border: 1px solid var(--border-color);
-}
-
-.sidebar .form-control {
-    border: 1px solid var(--border-color);
-    background-color: white;
-}
-
-.sidebar .form-control:focus {
-    box-shadow: none;
-    border-color: var(--primary-color);
-}
-
-/* Lists and Tags */
-.badge.rounded-circle {
+.sidebar .badge.rounded-circle {
     width: 12px;
     height: 12px;
     padding: 0;
     display: inline-block;
 }
 
+.sidebar-footer hr {
+    border-color: var(--border-color);
+    opacity: 0.8;
+    margin: 0.85rem 0 0.75rem;
+}
+
 /* ========================================
-   Main Content Styles
+   Main Area
    ======================================== */
 
 .main-content {
-    padding-top: 20px;
-    padding-bottom: 40px;
-    background-color: var(--main-bg);
-    transition: all 0.3s ease;
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    padding: 1.2rem 1.6rem 2.4rem;
+    background: transparent;
+    animation: fadeRise 0.45s ease;
 }
 
-/* Container für den Inhalt mit optimaler Breite */
-.main-content > * {
-    width: 100%;
-    max-width: 100%;
-}
-
-/* Main-Content Layout mit flexibler Breite und Zentrierung */
-@media (min-width: 992px) {
-    .main-content {
-        margin-left: var(--sidebar-width);
-        margin-right: 0;
-        width: auto;
-        padding-left: 2rem;
-        padding-right: 2rem;
-    }
-    
-    /* Wenn Detail-Sidebar geschlossen ist: Zentriere den Inhalt */
-    .main-content.centered {
-        margin-left: var(--sidebar-width);
-        margin-right: 0;
-        width: calc(100% - var(--sidebar-width));
-    }
-    
-    .main-content.centered > * {
-        max-width: 1200px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    
-    /* Wenn Detail-Sidebar offen ist, passt sich die Breite an */
-    body:has(.task-detail-sidebar:not(.d-none)) .main-content {
-        width: calc(100% - var(--sidebar-width) - 400px);
-        margin-right: 400px;
-    }
-    
-    body:has(.task-detail-sidebar:not(.d-none)) .main-content > * {
-        max-width: 100%;
-    }
-    
-    /* Wenn Detail-Sidebar offen ist, bleibt das Layout wie vorher */
-    .task-detail-sidebar:not(.d-none) {
-        display: block !important;
-    }
-}
-
-.main-content h1, .main-content h2 {
+.page-overline {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
     font-weight: 700;
-    margin-bottom: 1rem;
 }
 
-/* Add Task Button */
+.main-content h1,
+.main-content h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    margin-bottom: 0;
+    color: var(--text-primary);
+}
+
+.action-row {
+    gap: 1rem;
+}
+
 #addTaskBtn {
-    font-size: 0.95rem;
-    padding: 8px 0;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent) 0%, #0ea5a0 100%);
+    border: none;
+    border-radius: 999px;
+    padding: 0.62rem 1rem;
+    box-shadow: 0 8px 18px rgba(15, 118, 110, 0.28);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 #addTaskBtn:hover {
-    color: var(--primary-color) !important;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 11px 22px rgba(15, 118, 110, 0.34);
+}
+
+.task-list-shell {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+}
+
+#tasksList {
+    padding: 0.2rem;
 }
 
 /* ========================================
-   Task List Styles
+   Task Rows
    ======================================== */
 
 .list-group-item {
-    border: none;
-    border-bottom: 1px solid var(--border-color);
-    border-radius: 0 !important;
-    padding: 1rem 0.5rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md) !important;
+    padding: 0.92rem 0.78rem;
+    margin: 0.22rem;
     background-color: transparent;
-    transition: background-color 0.2s ease;
+    transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
     cursor: pointer;
 }
 
 .list-group-item:hover {
-    background-color: var(--hover-bg);
+    border-color: var(--border-color);
+    background-color: var(--bg-panel);
+    transform: translateY(-1px);
 }
 
-.list-group-item:first-child {
-    border-top: 1px solid var(--border-color);
+.list-group-item.completed {
+    opacity: 0.78;
 }
 
 .list-group-item.completed .task-title {
     text-decoration: line-through;
-    color: var(--text-secondary);
+    color: var(--text-muted);
 }
 
-/* Task Checkbox */
 .task-checkbox {
-    width: 20px;
-    height: 20px;
+    width: 1.15rem;
+    height: 1.15rem;
     cursor: pointer;
-    margin-right: 12px;
+    margin-right: 0.72rem;
     flex-shrink: 0;
+    border-color: #9eb1c8;
 }
 
 .task-checkbox:checked {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    background-color: var(--accent);
+    border-color: var(--accent);
 }
 
-/* Task Content */
 .task-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0.42rem;
 }
 
 .task-title {
-    font-size: 1rem;
-    font-weight: 400;
+    font-size: 0.98rem;
+    font-weight: 600;
     color: var(--text-primary);
     margin: 0;
 }
@@ -319,25 +407,190 @@ body {
 .task-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 0.42rem;
     align-items: center;
 }
 
 .task-meta .badge {
-    font-size: 0.75rem;
-    font-weight: 500;
-    padding: 4px 8px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 0.3rem 0.52rem;
+    border-radius: 999px;
+}
+
+.task-meta .bg-secondary {
+    background-color: rgba(90, 114, 142, 0.15) !important;
+    color: #425a74 !important;
 }
 
 .task-arrow {
-    color: var(--text-secondary);
-    font-size: 1.2rem;
+    color: #8aa0ba;
+    font-size: 1rem;
     margin-left: auto;
     flex-shrink: 0;
+    transition: transform 0.18s ease, color 0.18s ease;
+}
+
+.list-group-item:hover .task-arrow {
+    transform: translateX(2px);
+    color: var(--accent-strong);
+}
+
+.badge.tag-high {
+    background-color: rgba(220, 53, 69, 0.14);
+    color: #9b1c2c;
+}
+
+.badge.tag-medium {
+    background-color: rgba(245, 159, 0, 0.2);
+    color: #7c5200;
+}
+
+.badge.tag-low {
+    background-color: rgba(25, 135, 84, 0.15);
+    color: #0f5c37;
+}
+
+.badge.list-personal {
+    background-color: rgba(14, 165, 233, 0.17);
+    color: #065b8e;
+}
+
+.badge.list-work {
+    background-color: rgba(139, 92, 246, 0.17);
+    color: #5b2ca0;
+}
+
+#tasksList .text-center {
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    margin: 0.75rem;
+    background: linear-gradient(180deg, #fcfeff 0%, #f5f9ff 100%);
 }
 
 /* ========================================
-   Calendar Week View
+   Detail Sidebar
+   ======================================== */
+
+.task-detail-sidebar {
+    background: transparent;
+    padding: 1rem;
+    overflow-y: auto;
+    max-height: 100vh;
+    animation: fadeRise 0.3s ease;
+}
+
+.detail-card {
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    box-shadow: var(--shadow-panel);
+}
+
+.task-detail-sidebar .card-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+}
+
+.task-detail-sidebar .form-label {
+    font-weight: 600;
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.35rem;
+}
+
+.task-detail-sidebar .form-control,
+.task-detail-sidebar .form-select {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-primary);
+    padding: 0.56rem 0.7rem;
+}
+
+.task-detail-sidebar .form-control:focus,
+.task-detail-sidebar .form-select:focus {
+    border-color: #8ec5bf;
+    box-shadow: 0 0 0 0.19rem rgba(15, 118, 110, 0.15);
+}
+
+.task-detail-sidebar #taskTitle {
+    font-size: 1.1rem;
+    font-weight: 700;
+    border: none;
+    border-bottom: 2px solid var(--border-color);
+    border-radius: 0;
+    padding-left: 0;
+    background: transparent;
+}
+
+.task-detail-sidebar #taskTitle:focus {
+    box-shadow: none;
+    border-bottom-color: var(--accent);
+}
+
+.task-detail-sidebar .btn-primary {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 700;
+}
+
+.task-detail-sidebar .btn-primary:hover {
+    background-color: var(--accent-strong);
+    border-color: var(--accent-strong);
+}
+
+.task-detail-sidebar .btn-outline-secondary {
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.task-detail-sidebar .btn-outline-secondary:hover {
+    background-color: var(--bg-soft);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+/* ========================================
+   Modal
+   ======================================== */
+
+.modal-content {
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 16px 42px rgba(16, 36, 62, 0.16);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.25rem;
+}
+
+.modal-body {
+    padding: 1.25rem;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 1.25rem;
+}
+
+.modal .form-control,
+.modal .form-control-color {
+    border-radius: 10px;
+    border-color: var(--border-color);
+}
+
+.mobile-menu-btn {
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+    border-radius: 10px;
+}
+
+/* ========================================
+   Calendar View Compatibility
    ======================================== */
 
 .calendar-view {
@@ -353,7 +606,7 @@ body {
 }
 
 .calendar-toolbar-title {
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text-primary);
     text-align: center;
 }
@@ -365,10 +618,10 @@ body {
 }
 
 .calendar-day-column {
-    background-color: var(--card-bg);
+    background-color: var(--bg-shell);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
-    min-height: 230px;
+    border-radius: var(--radius-md);
+    min-height: 220px;
     display: flex;
     flex-direction: column;
 }
@@ -376,8 +629,8 @@ body {
 .calendar-day-header {
     padding: 10px 12px;
     border-bottom: 1px solid var(--border-color);
-    background-color: var(--hover-bg);
-    border-radius: 12px 12px 0 0;
+    background-color: var(--bg-soft);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
 .calendar-day-name {
@@ -408,14 +661,14 @@ body {
 .calendar-task-card {
     border: 1px solid var(--border-color);
     border-radius: 10px;
-    background-color: var(--main-bg);
+    background-color: #fff;
     padding: 8px;
     cursor: pointer;
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .calendar-task-card:hover {
-    background-color: var(--hover-bg);
+    background-color: var(--bg-panel);
 }
 
 .calendar-task-card.completed .calendar-task-title {
@@ -448,199 +701,41 @@ body {
     padding: 3px 7px;
 }
 
-/* Tag Colors */
-.badge.tag-high {
-    background-color: #dc3545;
-}
-
-.badge.tag-medium {
-    background-color: #fd7e14;
-    color: #000;
-}
-
-.badge.tag-low {
-    background-color: #198754;
-}
-
-.badge.list-personal {
-    background-color: #9b59b6;
-}
-
-.badge.list-work {
-    background-color: #3498db;
-}
-
 /* ========================================
-   Task Detail Sidebar Styles
+   Current App Feature Compatibility
    ======================================== */
 
-.task-detail-sidebar {
-    background-color: var(--sidebar-bg);
-    border-left: 1px solid var(--border-color);
-    padding: 20px;
-    overflow-y: auto;
-    max-height: 100vh;
-    transition: all 0.3s ease;
+#tagPreview {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
 }
 
-.task-detail-sidebar.d-none {
-    display: none !important;
+.list-share-btn {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
 }
 
-.task-detail-sidebar .card {
-    background-color: transparent;
+.nav-item:hover .list-share-btn {
+    opacity: 1;
 }
 
-.task-detail-sidebar .form-label {
-    font-weight: 500;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
+.list-share-btn:hover {
+    background-color: var(--bg-soft);
 }
 
-.task-detail-sidebar .form-control,
-.task-detail-sidebar .form-select {
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-}
-
-.task-detail-sidebar .form-control:focus,
-.task-detail-sidebar .form-select:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-
-.task-detail-sidebar #taskTitle {
-    font-size: 1.1rem;
-    border: none;
-    border-bottom: 2px solid var(--border-color);
-    border-radius: 0;
-    padding-left: 0;
-}
-
-.task-detail-sidebar #taskTitle:focus {
-    box-shadow: none;
-    border-bottom-color: var(--primary-color);
-}
-
-/* Action Buttons in Task Detail */
-.task-detail-sidebar .btn-primary {
-    background-color: #f8b4b4;
-    border-color: #f8b4b4;
-    color: #721c24;
-    font-weight: 500;
-}
-
-.task-detail-sidebar .btn-primary:hover {
-    background-color: #f5a3a3;
-    border-color: #f5a3a3;
-}
-
-.task-detail-sidebar .btn-outline-secondary {
-    border: 1px solid var(--border-color);
-    color: var(--text-secondary);
-}
-
-.task-detail-sidebar .btn-outline-secondary:hover {
-    background-color: var(--hover-bg);
-    border-color: var(--border-color);
-    color: var(--text-primary);
+.bi-people-fill {
+    font-size: 0.875rem;
 }
 
 /* ========================================
-   Modal Styles
-   ======================================== */
-
-.modal-content {
-    border-radius: 12px;
-    border: none;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-}
-
-.modal-header {
-    border-bottom: 1px solid var(--border-color);
-    padding: 1rem 1.5rem;
-}
-
-.modal-body {
-    padding: 1.5rem;
-}
-
-.modal-footer {
-    border-top: 1px solid var(--border-color);
-    padding: 1rem 1.5rem;
-}
-
-/* ========================================
-   Responsive Styles
-   ======================================== */
-
-@media (max-width: 767.98px) {
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: -100%;
-        width: 80%;
-        max-width: 300px;
-        transition: left 0.3s ease;
-        z-index: 1050;
-    }
-    
-    .sidebar.show {
-        left: 0;
-    }
-    
-    .main-content {
-        margin-left: 0 !important;
-        width: 100%;
-    }
-    
-    .task-detail-sidebar {
-        position: fixed;
-        right: -100%;
-        top: 0;
-        width: 100%;
-        max-width: 100%;
-        height: 100vh;
-        z-index: 1040;
-        transition: right 0.3s ease;
-    }
-    
-    .task-detail-sidebar.show {
-        right: 0;
-    }
-
-    .calendar-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .calendar-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .calendar-day-column {
-        min-height: 0;
-    }
-}
-
-@media (min-width: 768px) {
-    .main-content {
-        margin-left: var(--sidebar-width);
-    }
-
-    .calendar-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-@media (min-width: 992px) {
-    .calendar-grid {
-        grid-template-columns: repeat(7, minmax(0, 1fr));
-    }
-}
-
-/* ========================================
-   Utility Classes
+   Utilities
    ======================================== */
 
 .text-decoration-none {
@@ -663,10 +758,29 @@ body {
    Animations
    ======================================== */
 
-@keyframes slideIn {
+@keyframes fadeRise {
     from {
         opacity: 0;
-        transform: translateX(20px);
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.list-group-item {
+    animation: fadeRise 0.26s ease;
+}
+
+.task-detail-sidebar.show {
+    animation: panelSlide 0.28s ease;
+}
+
+@keyframes panelSlide {
+    from {
+        opacity: 0;
+        transform: translateX(14px);
     }
     to {
         opacity: 1;
@@ -674,61 +788,8 @@ body {
     }
 }
 
-.task-detail-sidebar.show {
-    animation: slideIn 0.3s ease;
-}
-
 /* ========================================
-   Tag Color Picker & Preview
-   ======================================== */
-
-.form-control-color {
-    width: 80px;
-    height: 45px;
-    padding: 0.25rem;
-    border: 2px solid var(--border-color);
-    cursor: pointer;
-}
-
-.form-control-color:hover {
-    border-color: var(--primary-color);
-}
-
-#tagPreview {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease;
-}
-
-/* ========================================
-   List Sharing Styles
-   ======================================== */
-
-.list-share-btn {
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-}
-
-.nav-item:hover .list-share-btn {
-    opacity: 1;
-}
-
-.list-share-btn:hover {
-    background-color: var(--hover-bg);
-}
-
-.bi-people-fill {
-    font-size: 0.875rem;
-}
-
-/* ========================================
-   Scrollbar Styles (Webkit)
+   Scrollbar (Webkit)
    ======================================== */
 
 .sidebar::-webkit-scrollbar,
@@ -743,26 +804,116 @@ body {
 
 .sidebar::-webkit-scrollbar-thumb,
 .task-detail-sidebar::-webkit-scrollbar-thumb {
-    background: #cbd5e0;
-    border-radius: 3px;
+    background: #b9c8db;
+    border-radius: 999px;
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover,
 .task-detail-sidebar::-webkit-scrollbar-thumb:hover {
-    background: #a0aec0;
+    background: #93a8c0;
 }
 
 /* ========================================
-   Print Styles
+   Responsive
+   ======================================== */
+
+@media (max-width: 991.98px) {
+    .main-content {
+        width: 100%;
+        padding: 1.1rem 1rem 1.8rem;
+    }
+
+    .task-detail-sidebar {
+        width: 100%;
+        max-width: 100%;
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 88%;
+        max-width: 320px;
+        transition: left 0.3s ease;
+        z-index: 1050;
+    }
+
+    .sidebar.show {
+        left: 0;
+    }
+
+    .task-detail-sidebar {
+        position: fixed;
+        right: -100%;
+        top: 0;
+        height: 100vh;
+        z-index: 1040;
+        transition: right 0.3s ease;
+    }
+
+    .task-detail-sidebar.show {
+        right: 0;
+    }
+
+    .action-row {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    #addTaskBtn {
+        width: 100%;
+    }
+
+    .main-content.ms-sm-auto {
+        margin-left: 0 !important;
+    }
+
+    .calendar-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .calendar-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .calendar-day-column {
+        min-height: 0;
+    }
+}
+
+@media (min-width: 768px) {
+    .main-content,
+    .main-content.ms-sm-auto {
+        margin-left: var(--sidebar-width) !important;
+    }
+
+    .calendar-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 992px) {
+    .calendar-grid {
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+}
+
+/* ========================================
+   Print
    ======================================== */
 
 @media print {
     .sidebar,
     .task-detail-sidebar,
-    #addTaskBtn {
+    #addTaskBtn,
+    .bg-orb {
         display: none !important;
     }
-    
+
     .main-content {
         margin-left: 0 !important;
         width: 100% !important;
