@@ -88,6 +88,7 @@ async function initializeApp() {
     renderTasks();
     renderLists();
     renderTags();
+    syncDetailLayoutState();
 
     document.addEventListener('auth:user-ready', (event) => {
         const email = event?.detail?.email;
@@ -414,6 +415,9 @@ function setupEventListeners() {
     
     // Logout
     DOM.logoutBtn.addEventListener('click', handleLogout);
+
+    // Layout sync
+    window.addEventListener('resize', syncDetailLayoutState);
 }
 
 // ========================================
@@ -547,14 +551,17 @@ function renderCalendarWeek(filteredTasks) {
     weekEnd.setDate(weekStart.getDate() + 6);
     const weekLabel = `${weekStart.toLocaleDateString('de-DE')} - ${weekEnd.toLocaleDateString('de-DE')}`;
 
+    const calendarShell = document.createElement('section');
+    calendarShell.className = 'calendar-shell';
+
     const toolbar = document.createElement('div');
     toolbar.className = 'calendar-toolbar';
     toolbar.innerHTML = `
-        <button class="btn btn-sm btn-outline-secondary" type="button" data-calendar-nav="prev">
+        <button class="btn btn-sm calendar-nav-btn" type="button" data-calendar-nav="prev">
             <i class="bi bi-chevron-left"></i> Vorherige Woche
         </button>
         <div class="calendar-toolbar-title">${weekLabel}</div>
-        <button class="btn btn-sm btn-outline-secondary" type="button" data-calendar-nav="next">
+        <button class="btn btn-sm calendar-nav-btn" type="button" data-calendar-nav="next">
             Nächste Woche <i class="bi bi-chevron-right"></i>
         </button>
     `;
@@ -574,7 +581,8 @@ function renderCalendarWeek(filteredTasks) {
     dayDates.forEach((dayDate, index) => {
         const dayKey = dayKeys[index];
         const dayColumn = document.createElement('div');
-        dayColumn.className = 'calendar-day-column';
+        const isToday = dayKey === toIsoDateLocal(new Date());
+        dayColumn.className = `calendar-day-column ${isToday ? 'is-today' : ''}`.trim();
         dayColumn.innerHTML = `
             <div class="calendar-day-header">
                 <div class="calendar-day-name">${dayDate.toLocaleDateString('de-DE', { weekday: 'long' })}</div>
@@ -599,8 +607,13 @@ function renderCalendarWeek(filteredTasks) {
         grid.appendChild(dayColumn);
     });
 
-    DOM.tasksList.appendChild(toolbar);
-    DOM.tasksList.appendChild(grid);
+    const gridWrap = document.createElement('div');
+    gridWrap.className = 'calendar-grid-wrap';
+    gridWrap.appendChild(grid);
+
+    calendarShell.appendChild(toolbar);
+    calendarShell.appendChild(gridWrap);
+    DOM.tasksList.appendChild(calendarShell);
 }
 
 function createTaskElement(task) {
@@ -807,26 +820,20 @@ function openTaskDetail(taskId) {
     // Show sidebar
     DOM.taskDetailSidebar.classList.remove('d-none');
     DOM.taskDetailSidebar.classList.add('show');
-    
-    // Adjust main content width on desktop
-    const mainContent = document.querySelector('.main-content');
-    if (window.innerWidth >= 992) {
-        mainContent.classList.remove('col-lg-7', 'centered');
-        mainContent.classList.add('col-lg-6');
-    }
+    syncDetailLayoutState();
 }
 
 function closeTaskDetail() {
     DOM.taskDetailSidebar.classList.add('d-none');
     DOM.taskDetailSidebar.classList.remove('show');
     AppState.selectedTask = null;
-    
-    // Reset main content width - zentriere wenn geschlossen
-    const mainContent = document.querySelector('.main-content');
-    if (window.innerWidth >= 992) {
-        mainContent.classList.remove('col-lg-6');
-        mainContent.classList.add('col-lg-7', 'centered');
-    }
+    syncDetailLayoutState();
+}
+
+function syncDetailLayoutState() {
+    const isDesktop = window.innerWidth >= 992;
+    const detailVisible = !DOM.taskDetailSidebar.classList.contains('d-none');
+    document.body.classList.toggle('detail-open', isDesktop && detailVisible);
 }
 
 // ========================================
@@ -1058,7 +1065,7 @@ function renderSharedUsers(list) {
     
     list.sharedWith.forEach((share, index) => {
         const userItem = document.createElement('div');
-        userItem.className = 'd-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded';
+        userItem.className = 'shared-user-row d-flex justify-content-between align-items-center mb-2 p-2';
         userItem.innerHTML = `
             <div>
                 <i class="bi bi-person-circle me-2"></i>
