@@ -10,6 +10,7 @@ const CONFIG = {
 
 const I18N = {
     de: {
+        page_title: 'Registrierung - ToDo Liste',
         title: 'ToDo Liste',
         subtitle: 'Neues Konto erstellen',
         email_label: 'E-Mail',
@@ -18,7 +19,7 @@ const I18N = {
         password_placeholder: 'Passwort erstellen',
         confirm_label: 'Passwort wiederholen',
         confirm_placeholder: 'Passwort wiederholen',
-        strength_label: 'Passwortstaerke',
+        strength_label: 'Passwortstärke',
         strength_weak: 'Schwach',
         strength_fair: 'Okay',
         strength_good: 'Gut',
@@ -26,14 +27,14 @@ const I18N = {
         rule_length: 'Mindestens 8 Zeichen',
         rule_special: 'Mindestens 1 Sonderzeichen',
         rule_digit: 'Mindestens 1 Zahl',
-        rule_upper: 'Mindestens 1 Grossbuchstabe',
+        rule_upper: 'Mindestens 1 Großbuchstabe',
         rule_lower: 'Mindestens 1 Kleinbuchstabe',
         register_btn: 'Registrieren',
-        register_loading: 'Registrierung laeuft...',
+        register_loading: 'Registrierung läuft...',
         have_account: 'Bereits ein Konto?',
         login_link: 'Zum Login',
-        email_invalid: 'Bitte geben Sie eine gueltige E-Mail ein.',
-        confirm_invalid: 'Passwoerter stimmen nicht ueberein.',
+        email_invalid: 'Bitte geben Sie eine gültige E-Mail ein.',
+        confirm_invalid: 'Passwörter stimmen nicht überein.',
         form_invalid_toast: 'Bitte korrigieren Sie die markierten Felder.',
         register_success: 'Registrierung erfolgreich. Weiterleitung zum Login...',
         register_error: 'Registrierung fehlgeschlagen.',
@@ -41,6 +42,7 @@ const I18N = {
         theme_title: 'Theme wechseln'
     },
     en: {
+        page_title: 'Register - ToDo List',
         title: 'ToDo List',
         subtitle: 'Create a new account',
         email_label: 'Email',
@@ -162,6 +164,7 @@ function setLanguage(lang) {
 
 function applyTranslations() {
     const t = getTranslations();
+    document.title = t.page_title;
     document.querySelectorAll('[data-i18n]').forEach((el) => {
         const key = el.dataset.i18n;
         if (t[key]) {

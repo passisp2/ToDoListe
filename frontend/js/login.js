@@ -9,6 +9,55 @@ const CONFIG = {
     REDIRECT_URL: 'index.html'
 };
 
+const I18N = {
+    de: {
+        page_title: 'Login - ToDo Liste',
+        title: 'ToDo Liste',
+        subtitle: 'Willkommen zurück',
+        email_label: 'E-Mail',
+        email_placeholder: 'E-Mail eingeben',
+        password_label: 'Passwort',
+        password_placeholder: 'Passwort eingeben',
+        remember_me: 'Angemeldet bleiben',
+        login_btn: 'Anmelden',
+        login_loading: 'Wird angemeldet...',
+        no_account: 'Noch kein Konto?',
+        register_link: 'Registrieren',
+        footer_secure: 'Ihre Daten werden sicher mit bcrypt verschlüsselt',
+        footer_demo: 'Diese Demo verwendet clientseitiges Hashing zu Demonstrationszwecken',
+        theme_title: 'Theme wechseln',
+        invalid_form: 'Bitte geben Sie eine gültige E-Mail und ein Passwort ein.',
+        login_success: 'Login erfolgreich. Sie werden weitergeleitet...',
+        invalid_credentials: 'Ungültige Anmeldedaten. Bitte prüfen Sie E-Mail und Passwort.',
+        invalid_credentials_alert: 'Warnung: Ungültige Anmeldedaten.',
+        login_failed: 'Login fehlgeschlagen. Bitte erneut versuchen.',
+        network_error: 'Netzwerkfehler. Bitte versuchen Sie es erneut.'
+    },
+    en: {
+        page_title: 'Login - ToDo List',
+        title: 'ToDo List',
+        subtitle: 'Welcome back',
+        email_label: 'Email',
+        email_placeholder: 'Enter email',
+        password_label: 'Password',
+        password_placeholder: 'Enter password',
+        remember_me: 'Stay signed in',
+        login_btn: 'Sign in',
+        login_loading: 'Signing in...',
+        no_account: 'No account yet?',
+        register_link: 'Register',
+        footer_secure: 'Your data is securely encrypted with bcrypt',
+        footer_demo: 'This demo uses client-side hashing for demonstration purposes',
+        theme_title: 'Toggle theme',
+        invalid_form: 'Please enter a valid email and password.',
+        login_success: 'Login successful. Redirecting...',
+        invalid_credentials: 'Invalid credentials. Please check your email and password.',
+        invalid_credentials_alert: 'Warning: Invalid credentials.',
+        login_failed: 'Login failed. Please try again.',
+        network_error: 'Network error. Please try again.'
+    }
+};
+
 const DOM = {
     loginForm: document.getElementById('loginForm'),
     email: document.getElementById('email'),
@@ -20,8 +69,11 @@ const DOM = {
     alertContainer: document.getElementById('alertContainer'),
     togglePassword: document.getElementById('togglePassword'),
     toggleIcon: document.getElementById('toggleIcon'),
-    themeToggle: document.getElementById('themeToggle')
+    themeToggle: document.getElementById('themeToggle'),
+    langSelect: document.getElementById('langSelect')
 };
+
+let currentLang = 'de';
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeLogin();
@@ -29,6 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function initializeLogin() {
     loadTheme();
+    loadLanguage();
+    applyTranslations();
     prefillEmailFromQuery();
     setupEventListeners();
 
@@ -36,6 +90,44 @@ async function initializeLogin() {
     if (alreadyAuthenticated) {
         redirectToApp();
     }
+}
+
+function t(key) {
+    return I18N[currentLang]?.[key] || I18N.de[key] || key;
+}
+
+function loadLanguage() {
+    const savedLang = localStorage.getItem('language') || 'de';
+    currentLang = I18N[savedLang] ? savedLang : 'de';
+    if (DOM.langSelect) {
+        DOM.langSelect.value = currentLang;
+    }
+}
+
+function setLanguage(lang) {
+    currentLang = I18N[lang] ? lang : 'de';
+    localStorage.setItem('language', currentLang);
+    applyTranslations();
+}
+
+function applyTranslations() {
+    document.documentElement.lang = currentLang;
+    document.title = t('page_title');
+
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+        const key = el.dataset.i18n;
+        el.textContent = t(key);
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+        const key = el.dataset.i18nPlaceholder;
+        el.setAttribute('placeholder', t(key));
+    });
+
+    document.querySelectorAll('[data-i18n-title]').forEach((el) => {
+        const key = el.dataset.i18nTitle;
+        el.setAttribute('title', t(key));
+    });
 }
 
 function prefillEmailFromQuery() {
@@ -50,6 +142,9 @@ function setupEventListeners() {
     DOM.loginForm.addEventListener('submit', handleLogin);
     DOM.togglePassword.addEventListener('click', togglePasswordVisibility);
     DOM.themeToggle.addEventListener('click', toggleTheme);
+    if (DOM.langSelect) {
+        DOM.langSelect.addEventListener('change', (e) => setLanguage(e.target.value));
+    }
 
     DOM.email.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
@@ -66,7 +161,7 @@ async function handleLogin(e) {
     const rememberMe = DOM.rememberMe.checked;
 
     if (!isValidEmail(email) || !password) {
-        showAlert('Bitte geben Sie eine gueltige E-Mail und ein Passwort ein.', 'danger');
+        showAlert(t('invalid_form'), 'danger');
         return;
     }
 
@@ -82,7 +177,7 @@ async function handleLogin(e) {
         const body = await safeParseJson(response);
 
         if (response.status === 200) {
-            showAlert('Login erfolgreich. Sie werden weitergeleitet...', 'success');
+            showAlert(t('login_success'), 'success');
             if (body?.user) {
                 localStorage.setItem('authUser', JSON.stringify(body.user));
             }
@@ -91,16 +186,16 @@ async function handleLogin(e) {
         }
 
         if (response.status === 401) {
-            showAlert('Ungueltige Anmeldedaten. Bitte pruefen Sie E-Mail und Passwort.', 'danger');
-            window.alert('Warnung: Ungueltige Anmeldedaten.');
+            showAlert(t('invalid_credentials'), 'danger');
+            window.alert(t('invalid_credentials_alert'));
             DOM.password.value = '';
             DOM.password.focus();
             return;
         }
 
-        showAlert(body?.error || 'Login fehlgeschlagen. Bitte erneut versuchen.', 'danger');
+        showAlert(body?.error || t('login_failed'), 'danger');
     } catch {
-        showAlert('Netzwerkfehler. Bitte versuchen Sie es erneut.', 'danger');
+        showAlert(t('network_error'), 'danger');
     } finally {
         setLoading(false);
     }

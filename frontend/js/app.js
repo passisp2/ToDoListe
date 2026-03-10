@@ -17,19 +17,239 @@ const AppState = {
     selectedTask: null,
     filterQuery: '',
     theme: 'light',
+    language: 'de',
     currentUser: null, // Aktuell eingeloggter Benutzer
     sharedListsData: {} // Speichert Sharing-Informationen pro Liste
 };
 
 const STORAGE_KEYS = {
-    CURRENT_VIEW: 'todo_current_view'
+    CURRENT_VIEW: 'todo_current_view',
+    LANGUAGE: 'language'
 };
 
-const VIEW_TITLES = {
-    today: 'Today',
-    upcoming: 'Upcoming',
-    overview: 'Overview',
-    calender: 'Calendar'
+const SUPPORTED_LANGUAGES = ['de', 'en'];
+
+const I18N = {
+    de: {
+        page_title: 'ToDo Liste',
+        brand_overline: 'Produktiv bleiben',
+        brand_title: 'Taskboard',
+        nav_tasks: 'Aufgaben',
+        nav_today: 'Heute',
+        nav_upcoming: 'Demnächst',
+        nav_overview: 'Überblick',
+        nav_calendar: 'Kalender',
+        nav_lists: 'Listen',
+        invite: 'Einladen',
+        new_list: 'Neue Liste',
+        nav_tags: 'Tags',
+        add_tag: 'Tag hinzufügen',
+        settings: 'Einstellungen',
+        logout: 'Abmelden',
+        page_overline: 'Dein Fokus heute',
+        page_subtitle: 'Plane, priorisiere und hake Aufgaben sauber ab.',
+        search_placeholder: 'Aufgaben durchsuchen...',
+        add_task: 'Neue Aufgabe',
+        task_header: 'Aufgabe:',
+        task_title_placeholder: 'Aufgabentitel',
+        description: 'Beschreibung',
+        description_placeholder: 'Beschreibung hinzufügen...',
+        list_label: 'Liste:',
+        no_list_available: 'Keine Liste verfügbar',
+        due_date: 'Fälligkeitsdatum:',
+        tags_label: 'Tags:',
+        select_tag: 'Tag auswählen...',
+        cancel: 'Abbrechen',
+        save_changes: 'Speichern',
+        add_new_list: 'Neue Liste erstellen',
+        list_name: 'Listenname',
+        color: 'Farbe',
+        save_list: 'Liste speichern',
+        add_new_tag: 'Neuen Tag erstellen',
+        edit_tag: 'Tag bearbeiten',
+        tag_name: 'Tag-Name',
+        choose_color: 'Wähle eine Farbe',
+        tag_hint: 'Die Textfarbe wird automatisch angepasst für beste Lesbarkeit',
+        save_tag: 'Tag speichern',
+        share_intro: 'Geben Sie den Benutzernamen ein, mit dem Sie die Liste',
+        share_intro_suffix: 'teilen möchten:',
+        username: 'Benutzername',
+        username_placeholder: 'z.B. max.mustermann',
+        permissions: 'Berechtigungen',
+        permission_read: 'Nur ansehen',
+        permission_edit: 'Bearbeiten',
+        shared_with: 'Geteilt mit:',
+        not_shared_yet: 'Diese Liste wurde noch nicht geteilt.',
+        share_title: 'Liste teilen',
+        share: 'Teilen',
+        confirm: 'Bestätigen',
+        ok: 'OK',
+        theme: 'Theme',
+        theme_light: 'Hell',
+        theme_dark: 'Dunkel',
+        language: 'Sprache',
+        close: 'Schließen',
+        view_today: 'Heute',
+        view_upcoming: 'Demnächst',
+        view_overview: 'Überblick',
+        view_calender: 'Kalender',
+        preview: 'Vorschau',
+        no_tasks_found: 'Keine Aufgaben gefunden',
+        calendar_prev_week: 'Vorherige Woche',
+        calendar_next_week: 'Nächste Woche',
+        calendar_no_tasks: 'Keine Aufgaben',
+        data_reload_failed: 'Daten konnten nicht neu geladen werden.',
+        data_load_failed: 'Daten konnten nicht geladen werden.',
+        task_create_default: 'Neue Aufgabe',
+        task_create_failed: 'Aufgabe konnte nicht erstellt werden.',
+        task_status_failed: 'Status konnte nicht gespeichert werden.',
+        task_saved: 'Aufgabe gespeichert',
+        task_save_failed: 'Aufgabe konnte nicht gespeichert werden.',
+        task_delete_confirm: 'Möchten Sie diese Aufgabe wirklich löschen?',
+        task_delete_title: 'Aufgabe löschen',
+        task_deleted: 'Aufgabe gelöscht',
+        task_delete_failed: 'Aufgabe konnte nicht gelöscht werden.',
+        tasks_load_failed: 'Aufgaben konnten nicht geladen werden.',
+        list_name_required: 'Bitte geben Sie einen Namen für die Liste ein.',
+        list_created: 'Liste erstellt',
+        list_create_failed: 'Liste konnte nicht erstellt werden.',
+        share_only_owner: 'Sie können nur eigene Listen teilen.',
+        share_username_required: 'Bitte geben Sie einen Benutzernamen ein.',
+        share_self_forbidden: 'Sie können die Liste nicht mit sich selbst teilen.',
+        share_already_exists: 'Diese Liste wurde bereits mit diesem Benutzer geteilt.',
+        list_shared_with: 'Liste mit {username} geteilt',
+        list_unshared_with: 'Liste nicht mehr mit {username} geteilt',
+        share_permission_read: 'Ansehen',
+        share_permission_edit: 'Bearbeiten',
+        tag_delete_title: 'Tag löschen',
+        tag_delete_confirm: 'Möchten Sie den Tag "{tag}" wirklich löschen?\nEr wird aus allen Aufgaben entfernt.',
+        tag_name_required: 'Bitte geben Sie einen Namen für den Tag ein.',
+        tag_exists: 'Dieser Tag existiert bereits.',
+        tag_updated: 'Tag aktualisiert',
+        tag_update_failed: 'Tag konnte nicht aktualisiert werden.',
+        tag_created: 'Tag erstellt',
+        tag_create_failed: 'Tag konnte nicht erstellt werden.',
+        tag_deleted: 'Tag gelöscht',
+        tag_delete_failed: 'Tag konnte nicht gelöscht werden.',
+        logout_confirm: 'Möchten Sie sich wirklich abmelden?',
+        logout_title: 'Abmelden',
+        theme_changed: 'Theme auf {mode} geändert',
+        theme_mode_dark: 'Dark Mode',
+        theme_mode_light: 'Light Mode',
+        hint_title: 'Hinweis',
+        confirm_title: 'Bestätigung',
+        api_failed: 'API-Anfrage fehlgeschlagen ({status})'
+    },
+    en: {
+        page_title: 'ToDo List',
+        brand_overline: 'Stay productive',
+        brand_title: 'Taskboard',
+        nav_tasks: 'Tasks',
+        nav_today: 'Today',
+        nav_upcoming: 'Upcoming',
+        nav_overview: 'Overview',
+        nav_calendar: 'Calendar',
+        nav_lists: 'Lists',
+        invite: 'Invite',
+        new_list: 'New list',
+        nav_tags: 'Tags',
+        add_tag: 'Add tag',
+        settings: 'Settings',
+        logout: 'Log out',
+        page_overline: 'Your focus today',
+        page_subtitle: 'Plan, prioritize, and complete your tasks with clarity.',
+        search_placeholder: 'Search tasks...',
+        add_task: 'New task',
+        task_header: 'Task:',
+        task_title_placeholder: 'Task title',
+        description: 'Description',
+        description_placeholder: 'Add description...',
+        list_label: 'List:',
+        no_list_available: 'No list available',
+        due_date: 'Due date:',
+        tags_label: 'Tags:',
+        select_tag: 'Select tag...',
+        cancel: 'Cancel',
+        save_changes: 'Save changes',
+        add_new_list: 'Add new list',
+        list_name: 'List name',
+        color: 'Color',
+        save_list: 'Save list',
+        add_new_tag: 'Add new tag',
+        edit_tag: 'Edit tag',
+        tag_name: 'Tag name',
+        choose_color: 'Choose a color',
+        tag_hint: 'Text color is adjusted automatically for best readability',
+        save_tag: 'Save tag',
+        share_intro: 'Enter the username you want to share the list',
+        share_intro_suffix: 'with:',
+        username: 'Username',
+        username_placeholder: 'e.g. john.doe',
+        permissions: 'Permissions',
+        permission_read: 'Read only',
+        permission_edit: 'Edit',
+        shared_with: 'Shared with:',
+        not_shared_yet: 'This list has not been shared yet.',
+        share_title: 'Share list',
+        share: 'Share',
+        confirm: 'Confirm',
+        ok: 'OK',
+        theme: 'Theme',
+        theme_light: 'Light',
+        theme_dark: 'Dark',
+        language: 'Language',
+        close: 'Close',
+        view_today: 'Today',
+        view_upcoming: 'Upcoming',
+        view_overview: 'Overview',
+        view_calender: 'Calendar',
+        preview: 'Preview',
+        no_tasks_found: 'No tasks found',
+        calendar_prev_week: 'Previous week',
+        calendar_next_week: 'Next week',
+        calendar_no_tasks: 'No tasks',
+        data_reload_failed: 'Could not reload data.',
+        data_load_failed: 'Could not load data.',
+        task_create_default: 'New task',
+        task_create_failed: 'Could not create task.',
+        task_status_failed: 'Could not save status.',
+        task_saved: 'Task saved',
+        task_save_failed: 'Could not save task.',
+        task_delete_confirm: 'Do you really want to delete this task?',
+        task_delete_title: 'Delete task',
+        task_deleted: 'Task deleted',
+        task_delete_failed: 'Could not delete task.',
+        tasks_load_failed: 'Could not load tasks.',
+        list_name_required: 'Please enter a name for the list.',
+        list_created: 'List created',
+        list_create_failed: 'Could not create list.',
+        share_only_owner: 'You can only share your own lists.',
+        share_username_required: 'Please enter a username.',
+        share_self_forbidden: 'You cannot share the list with yourself.',
+        share_already_exists: 'This list is already shared with this user.',
+        list_shared_with: 'List shared with {username}',
+        list_unshared_with: 'List no longer shared with {username}',
+        share_permission_read: 'Read',
+        share_permission_edit: 'Edit',
+        tag_delete_title: 'Delete tag',
+        tag_delete_confirm: 'Do you really want to delete the tag "{tag}"?\nIt will be removed from all tasks.',
+        tag_name_required: 'Please enter a name for the tag.',
+        tag_exists: 'This tag already exists.',
+        tag_updated: 'Tag updated',
+        tag_update_failed: 'Could not update tag.',
+        tag_created: 'Tag created',
+        tag_create_failed: 'Could not create tag.',
+        tag_deleted: 'Tag deleted',
+        tag_delete_failed: 'Could not delete tag.',
+        logout_confirm: 'Do you really want to log out?',
+        logout_title: 'Log out',
+        theme_changed: 'Theme changed to {mode}',
+        theme_mode_dark: 'Dark mode',
+        theme_mode_light: 'Light mode',
+        hint_title: 'Info',
+        confirm_title: 'Confirmation',
+        api_failed: 'API request failed ({status})'
+    }
 };
 
 // ========================================
@@ -63,6 +283,7 @@ const DOM = {
     tagsContainer: document.getElementById('tagsContainer'),
     themeLight: document.getElementById('themeLight'),
     themeDark: document.getElementById('themeDark'),
+    appLanguage: document.getElementById('appLanguage'),
     shareListBtn: document.getElementById('shareListBtn'),
     shareUsername: document.getElementById('shareUsername'),
     shareListName: document.getElementById('shareListName'),
@@ -80,14 +301,17 @@ document.addEventListener('DOMContentLoaded', function() {
 async function initializeApp() {
     loadCurrentUser();
     loadTheme();
+    loadLanguage();
     loadPersistedView();
     setupEventListeners();
+    applyLanguage();
     applyCurrentViewUI();
 
     await refreshAllData();
     renderTasks();
     renderLists();
     renderTags();
+    syncDetailLayoutState();
 
     document.addEventListener('auth:user-ready', (event) => {
         const email = event?.detail?.email;
@@ -102,7 +326,7 @@ async function initializeApp() {
                 renderTags();
             })
             .catch(() => {
-                showNotification('Daten konnten nicht neu geladen werden.', 'danger');
+                showNotification(t('data_reload_failed'), 'danger');
             });
     });
 
@@ -201,7 +425,7 @@ async function refreshAllData() {
         loadSharedLists();
     } catch (error) {
         console.error('Error loading API data:', error);
-        showNotification('Daten konnten nicht geladen werden.', 'danger');
+        showNotification(t('data_load_failed'), 'danger');
     }
 }
 
@@ -212,7 +436,7 @@ async function refreshTasksFromApi() {
 
 function loadPersistedView() {
     const savedView = localStorage.getItem(STORAGE_KEYS.CURRENT_VIEW);
-    if (savedView && Object.prototype.hasOwnProperty.call(VIEW_TITLES, savedView)) {
+    if (savedView && ['today', 'upcoming', 'overview', 'calender'].includes(savedView)) {
         AppState.currentView = savedView;
     }
 }
@@ -221,15 +445,60 @@ function applyCurrentViewUI() {
     document.querySelectorAll('[data-view]').forEach(link => {
         link.classList.toggle('active', link.dataset.view === AppState.currentView);
     });
-    DOM.pageTitle.textContent = VIEW_TITLES[AppState.currentView] || VIEW_TITLES.today;
+    DOM.pageTitle.textContent = getViewTitle(AppState.currentView);
 }
 
 function setCurrentView(view) {
-    if (!Object.prototype.hasOwnProperty.call(VIEW_TITLES, view)) {
+    if (!['today', 'upcoming', 'overview', 'calender'].includes(view)) {
         return;
     }
     AppState.currentView = view;
     localStorage.setItem(STORAGE_KEYS.CURRENT_VIEW, view);
+    applyCurrentViewUI();
+}
+
+function t(key, vars = {}) {
+    const translations = I18N[AppState.language] || I18N.de;
+    const template = translations[key] || I18N.de[key] || key;
+    return template.replace(/\{(\w+)\}/g, (_, name) => String(vars[name] ?? ''));
+}
+
+function getLocale() {
+    return AppState.language === 'en' ? 'en-US' : 'de-DE';
+}
+
+function getViewTitle(view) {
+    return t(`view_${view}`);
+}
+
+function loadLanguage() {
+    const saved = localStorage.getItem(STORAGE_KEYS.LANGUAGE) || 'de';
+    AppState.language = SUPPORTED_LANGUAGES.includes(saved) ? saved : 'de';
+}
+
+function applyLanguage() {
+    document.documentElement.lang = AppState.language;
+    document.title = t('page_title');
+
+    document.querySelectorAll('[data-i18n]').forEach((element) => {
+        const key = element.dataset.i18n;
+        element.textContent = t(key);
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
+        const key = element.dataset.i18nPlaceholder;
+        element.setAttribute('placeholder', t(key));
+    });
+
+    document.querySelectorAll('[data-i18n-title]').forEach((element) => {
+        const key = element.dataset.i18nTitle;
+        element.setAttribute('title', t(key));
+    });
+
+    if (DOM.appLanguage) {
+        DOM.appLanguage.value = AppState.language;
+    }
+
     applyCurrentViewUI();
 }
 
@@ -283,7 +552,7 @@ function updateTagPreview(tagName, tagColor) {
     const textColor = getContrastTextColor(tagColor);
     preview.style.backgroundColor = tagColor;
     preview.style.color = textColor;
-    preview.textContent = tagName || 'Vorschau';
+    preview.textContent = tagName || t('preview');
 }
 
 // ========================================
@@ -295,7 +564,7 @@ function updateTagPreview(tagName, tagColor) {
  * @param {string} message - Die anzuzeigende Nachricht
  * @param {string} title - Der Modal-Titel (optional)
  */
-function showInfoModal(message, title = 'Hinweis') {
+function showInfoModal(message, title = t('hint_title')) {
     const modalElement = document.getElementById('infoModal');
     const modalTitle = document.getElementById('infoModalTitle');
     const modalBody = document.getElementById('infoModalBody');
@@ -313,7 +582,7 @@ function showInfoModal(message, title = 'Hinweis') {
  * @param {string} title - Der Modal-Titel (optional)
  * @returns {Promise<boolean>} - Promise das true bei Bestätigung und false bei Abbruch zurückgibt
  */
-function showConfirmModal(message, title = 'Bestätigung') {
+function showConfirmModal(message, title = t('confirm_title')) {
     return new Promise((resolve) => {
         const modalElement = document.getElementById('confirmModal');
         const modalTitle = document.getElementById('confirmModalTitle');
@@ -396,7 +665,7 @@ function setupEventListeners() {
     });
     
     // Initialize tag preview on page load
-    updateTagPreview('Vorschau', DOM.tagColor.value);
+    updateTagPreview(t('preview'), DOM.tagColor.value);
     
     // Reset editingTagIndex when modal closes
     const tagModal = document.getElementById('addTagModal');
@@ -404,16 +673,23 @@ function setupEventListeners() {
         editingTagIndex = null;
         DOM.tagName.value = '';
         DOM.tagColor.value = '#dc3545';
-        updateTagPreview('Vorschau', '#dc3545');
-        document.querySelector('#addTagModal .modal-title').textContent = 'Add New Tag';
+        updateTagPreview(t('preview'), '#dc3545');
+        document.querySelector('#addTagModal .modal-title').textContent = t('add_new_tag');
     });
     
     // Theme
     DOM.themeLight.addEventListener('change', handleThemeChange);
     DOM.themeDark.addEventListener('change', handleThemeChange);
+
+    if (DOM.appLanguage) {
+        DOM.appLanguage.addEventListener('change', handleLanguageChange);
+    }
     
     // Logout
     DOM.logoutBtn.addEventListener('click', handleLogout);
+
+    // Layout sync
+    window.addEventListener('resize', syncDetailLayoutState);
 }
 
 // ========================================
@@ -434,7 +710,7 @@ function renderTasks() {
         DOM.tasksList.innerHTML = `
             <div class="text-center py-5 text-muted">
                 <i class="bi bi-inbox fs-1"></i>
-                <p class="mt-2">Keine Aufgaben gefunden</p>
+                <p class="mt-2">${t('no_tasks_found')}</p>
             </div>
         `;
         return;
@@ -545,17 +821,21 @@ function renderCalendarWeek(filteredTasks) {
 
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekStart.getDate() + 6);
-    const weekLabel = `${weekStart.toLocaleDateString('de-DE')} - ${weekEnd.toLocaleDateString('de-DE')}`;
+    const locale = getLocale();
+    const weekLabel = `${weekStart.toLocaleDateString(locale)} - ${weekEnd.toLocaleDateString(locale)}`;
+
+    const calendarShell = document.createElement('section');
+    calendarShell.className = 'calendar-shell';
 
     const toolbar = document.createElement('div');
     toolbar.className = 'calendar-toolbar';
     toolbar.innerHTML = `
-        <button class="btn btn-sm btn-outline-secondary" type="button" data-calendar-nav="prev">
-            <i class="bi bi-chevron-left"></i> Vorherige Woche
+        <button class="btn btn-sm calendar-nav-btn" type="button" data-calendar-nav="prev">
+            <i class="bi bi-chevron-left"></i> ${t('calendar_prev_week')}
         </button>
         <div class="calendar-toolbar-title">${weekLabel}</div>
-        <button class="btn btn-sm btn-outline-secondary" type="button" data-calendar-nav="next">
-            Nächste Woche <i class="bi bi-chevron-right"></i>
+        <button class="btn btn-sm calendar-nav-btn" type="button" data-calendar-nav="next">
+            ${t('calendar_next_week')} <i class="bi bi-chevron-right"></i>
         </button>
     `;
 
@@ -574,11 +854,12 @@ function renderCalendarWeek(filteredTasks) {
     dayDates.forEach((dayDate, index) => {
         const dayKey = dayKeys[index];
         const dayColumn = document.createElement('div');
-        dayColumn.className = 'calendar-day-column';
+        const isToday = dayKey === toIsoDateLocal(new Date());
+        dayColumn.className = `calendar-day-column ${isToday ? 'is-today' : ''}`.trim();
         dayColumn.innerHTML = `
             <div class="calendar-day-header">
-                <div class="calendar-day-name">${dayDate.toLocaleDateString('de-DE', { weekday: 'long' })}</div>
-                <div class="calendar-day-date">${dayDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}</div>
+                <div class="calendar-day-name">${dayDate.toLocaleDateString(locale, { weekday: 'long' })}</div>
+                <div class="calendar-day-date">${dayDate.toLocaleDateString(locale, { day: '2-digit', month: '2-digit' })}</div>
             </div>
             <div class="calendar-day-body"></div>
         `;
@@ -588,7 +869,7 @@ function renderCalendarWeek(filteredTasks) {
         if (dayTasks.length === 0) {
             const empty = document.createElement('div');
             empty.className = 'calendar-day-empty';
-            empty.textContent = 'Keine Aufgaben';
+            empty.textContent = t('calendar_no_tasks');
             body.appendChild(empty);
         } else {
             dayTasks.forEach(task => {
@@ -599,8 +880,13 @@ function renderCalendarWeek(filteredTasks) {
         grid.appendChild(dayColumn);
     });
 
-    DOM.tasksList.appendChild(toolbar);
-    DOM.tasksList.appendChild(grid);
+    const gridWrap = document.createElement('div');
+    gridWrap.className = 'calendar-grid-wrap';
+    gridWrap.appendChild(grid);
+
+    calendarShell.appendChild(toolbar);
+    calendarShell.appendChild(gridWrap);
+    DOM.tasksList.appendChild(calendarShell);
 }
 
 function createTaskElement(task) {
@@ -698,7 +984,7 @@ async function handleAddTask() {
     try {
         const defaultList = AppState.lists[0]?.id || null;
         const createdTask = await API.createTask({
-            title: 'Neue Aufgabe',
+            title: t('task_create_default'),
             description: '',
             completed: false,
             list: defaultList,
@@ -715,7 +1001,7 @@ async function handleAddTask() {
             DOM.taskTitle.select();
         }, 100);
     } catch (error) {
-        showInfoModal(error.message || 'Aufgabe konnte nicht erstellt werden.', 'Fehler');
+        showInfoModal(error.message || t('task_create_failed'), t('hint_title'));
     }
 }
 
@@ -735,7 +1021,7 @@ async function handleTaskToggle(taskId) {
     } catch (error) {
         task.completed = !nextCompleted;
         renderTasks();
-        showNotification(error.message || 'Status konnte nicht gespeichert werden.', 'danger');
+        showNotification(error.message || t('task_status_failed'), 'danger');
     }
 }
 
@@ -762,16 +1048,16 @@ async function handleSaveTask(e) {
         Object.assign(task, updated);
         renderTasks();
         closeTaskDetail();
-        showNotification('Aufgabe gespeichert', 'success');
+        showNotification(t('task_saved'), 'success');
     } catch (error) {
-        showInfoModal(error.message || 'Aufgabe konnte nicht gespeichert werden.', 'Fehler');
+        showInfoModal(error.message || t('task_save_failed'), t('hint_title'));
     }
 }
 
 async function deleteTask(taskId) {
     const confirmed = await showConfirmModal(
-        'Möchten Sie diese Aufgabe wirklich löschen?',
-        'Aufgabe löschen'
+        t('task_delete_confirm'),
+        t('task_delete_title')
     );
     
     if (confirmed) {
@@ -780,9 +1066,9 @@ async function deleteTask(taskId) {
             AppState.tasks = AppState.tasks.filter(t => t.id !== taskId);
             renderTasks();
             closeTaskDetail();
-            showNotification('Aufgabe gelöscht', 'info');
+            showNotification(t('task_deleted'), 'info');
         } catch (error) {
-            showInfoModal(error.message || 'Aufgabe konnte nicht gelöscht werden.', 'Fehler');
+            showInfoModal(error.message || t('task_delete_failed'), t('hint_title'));
         }
     }
 }
@@ -807,26 +1093,20 @@ function openTaskDetail(taskId) {
     // Show sidebar
     DOM.taskDetailSidebar.classList.remove('d-none');
     DOM.taskDetailSidebar.classList.add('show');
-    
-    // Adjust main content width on desktop
-    const mainContent = document.querySelector('.main-content');
-    if (window.innerWidth >= 992) {
-        mainContent.classList.remove('col-lg-7', 'centered');
-        mainContent.classList.add('col-lg-6');
-    }
+    syncDetailLayoutState();
 }
 
 function closeTaskDetail() {
     DOM.taskDetailSidebar.classList.add('d-none');
     DOM.taskDetailSidebar.classList.remove('show');
     AppState.selectedTask = null;
-    
-    // Reset main content width - zentriere wenn geschlossen
-    const mainContent = document.querySelector('.main-content');
-    if (window.innerWidth >= 992) {
-        mainContent.classList.remove('col-lg-6');
-        mainContent.classList.add('col-lg-7', 'centered');
-    }
+    syncDetailLayoutState();
+}
+
+function syncDetailLayoutState() {
+    const isDesktop = window.innerWidth >= 992;
+    const detailVisible = !DOM.taskDetailSidebar.classList.contains('d-none');
+    document.body.classList.toggle('detail-open', isDesktop && detailVisible);
 }
 
 // ========================================
@@ -889,7 +1169,7 @@ async function handleViewChange(e) {
         try {
             await refreshTasksFromApi();
         } catch (error) {
-            showNotification(error.message || 'Aufgaben konnten nicht geladen werden.', 'danger');
+            showNotification(error.message || t('tasks_load_failed'), 'danger');
         }
     }
 
@@ -932,8 +1212,8 @@ function renderLists() {
         // Prüfe ob Liste geteilt ist
         const isShared = list.sharedWith && list.sharedWith.length > 0;
         const isOwner = Boolean(AppState.currentUser) && list.owner === AppState.currentUser;
-        const sharedIcon = isShared ? '<i class="bi bi-people-fill text-muted ms-1" title="Geteilt"></i>' : '';
-        const shareButton = isOwner ? `<i class="bi bi-share list-share-btn" data-list-id="${list.id}" title="Liste teilen"></i>` : '';
+        const sharedIcon = isShared ? `<i class="bi bi-people-fill text-muted ms-1" title="${t('shared_with')}"></i>` : '';
+        const shareButton = isOwner ? `<i class="bi bi-share list-share-btn" data-list-id="${list.id}" title="${t('share')}"></i>` : '';
         
         listItem.innerHTML = `
             <a class="nav-link d-flex justify-content-between align-items-center" href="#" data-list="${list.id}">
@@ -971,7 +1251,7 @@ function renderLists() {
     if (AppState.lists.length === 0) {
         const option = document.createElement('option');
         option.value = '';
-        option.textContent = 'Keine Liste verfügbar';
+        option.textContent = t('no_list_available');
         DOM.taskList.appendChild(option);
     } else {
         AppState.lists.forEach(list => {
@@ -996,7 +1276,7 @@ async function handleSaveList() {
     const color = DOM.listColor.value;
     
     if (!name) {
-        showInfoModal('Bitte geben Sie einen Namen für die Liste ein.', 'Fehler');
+        showInfoModal(t('list_name_required'), t('hint_title'));
         return;
     }
     
@@ -1010,9 +1290,9 @@ async function handleSaveList() {
 
         const modal = bootstrap.Modal.getInstance(document.getElementById('addListModal'));
         modal.hide();
-        showNotification('Liste erstellt', 'success');
+        showNotification(t('list_created'), 'success');
     } catch (error) {
-        showInfoModal(error.message || 'Liste konnte nicht erstellt werden.', 'Fehler');
+        showInfoModal(error.message || t('list_create_failed'), t('hint_title'));
     }
 }
 
@@ -1028,7 +1308,7 @@ function openShareListModal(listId) {
     
     // Prüfe ob Benutzer der Besitzer ist
     if (list.owner !== AppState.currentUser) {
-        showInfoModal('Sie können nur eigene Listen teilen.', 'Fehler');
+        showInfoModal(t('share_only_owner'), t('hint_title'));
         return;
     }
     
@@ -1050,7 +1330,7 @@ function openShareListModal(listId) {
 
 function renderSharedUsers(list) {
     if (!list.sharedWith || list.sharedWith.length === 0) {
-        DOM.sharedUsersContainer.innerHTML = '<p class="text-muted small">Diese Liste wurde noch nicht geteilt.</p>';
+        DOM.sharedUsersContainer.innerHTML = `<p class="text-muted small">${t('not_shared_yet')}</p>`;
         return;
     }
     
@@ -1058,12 +1338,12 @@ function renderSharedUsers(list) {
     
     list.sharedWith.forEach((share, index) => {
         const userItem = document.createElement('div');
-        userItem.className = 'd-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded';
+        userItem.className = 'shared-user-row d-flex justify-content-between align-items-center mb-2 p-2';
         userItem.innerHTML = `
             <div>
                 <i class="bi bi-person-circle me-2"></i>
                 <strong>${share.username}</strong>
-                <span class="badge bg-secondary ms-2">${share.permission === 'edit' ? 'Bearbeiten' : 'Ansehen'}</span>
+                <span class="badge bg-secondary ms-2">${share.permission === 'edit' ? t('share_permission_edit') : t('share_permission_read')}</span>
             </div>
             <button class="btn btn-sm btn-outline-danger" onclick="removeSharedUser(${index})">
                 <i class="bi bi-x-lg"></i>
@@ -1078,12 +1358,12 @@ function handleShareList() {
     const permission = document.querySelector('input[name="sharePermission"]:checked').value;
     
     if (!username) {
-        showInfoModal('Bitte geben Sie einen Benutzernamen ein.', 'Fehler');
+        showInfoModal(t('share_username_required'), t('hint_title'));
         return;
     }
     
     if (username === AppState.currentUser) {
-        showInfoModal('Sie können die Liste nicht mit sich selbst teilen.', 'Fehler');
+        showInfoModal(t('share_self_forbidden'), t('hint_title'));
         return;
     }
     
@@ -1092,7 +1372,7 @@ function handleShareList() {
     
     // Prüfe ob bereits geteilt
     if (list.sharedWith.some(s => s.username === username)) {
-        showInfoModal('Diese Liste wurde bereits mit diesem Benutzer geteilt.', 'Fehler');
+        showInfoModal(t('share_already_exists'), t('hint_title'));
         return;
     }
     
@@ -1113,7 +1393,7 @@ function handleShareList() {
     // Clear input
     DOM.shareUsername.value = '';
     
-    showNotification(`Liste mit ${username} geteilt`, 'success');
+    showNotification(t('list_shared_with', { username }), 'success');
 }
 
 function removeSharedUser(index) {
@@ -1130,7 +1410,7 @@ function removeSharedUser(index) {
     renderSharedUsers(list);
     renderLists();
     
-    showNotification(`Liste nicht mehr mit ${removedUser.username} geteilt`, 'info');
+    showNotification(t('list_unshared_with', { username: removedUser.username }), 'info');
 }
 
 // Mache removeSharedUser global verfügbar
@@ -1168,7 +1448,7 @@ function renderTags() {
         deleteBtn.style.cursor = 'pointer';
         deleteBtn.style.fontSize = '0.9rem';
         deleteBtn.style.color = textColor; // Icon hat die gleiche Farbe wie Text
-        deleteBtn.title = 'Tag löschen';
+        deleteBtn.title = t('tag_delete_title');
         deleteBtn.onclick = (e) => {
             e.stopPropagation();
             handleDeleteTag(index);
@@ -1183,7 +1463,7 @@ function renderTags() {
     });
     
     // Update tag dropdown in task detail
-    DOM.taskTags.innerHTML = '<option value="">Select tag...</option>';
+    DOM.taskTags.innerHTML = `<option value="">${t('select_tag')}</option>`;
     AppState.tags.forEach(tag => {
         const option = document.createElement('option');
         option.value = tag.name;
@@ -1199,7 +1479,7 @@ async function handleSaveTag() {
     const color = DOM.tagColor.value;
     
     if (!name) {
-        showInfoModal('Bitte geben Sie einen Namen für den Tag ein.', 'Fehler');
+        showInfoModal(t('tag_name_required'), t('hint_title'));
         return;
     }
     
@@ -1209,7 +1489,7 @@ async function handleSaveTag() {
         
         // Prüfe ob neuer Name schon existiert (aber nicht der aktuelle Tag)
         if (AppState.tags.some((t, idx) => t.name === name && idx !== editingTagIndex)) {
-            showInfoModal('Dieser Tag existiert bereits.', 'Fehler');
+            showInfoModal(t('tag_exists'), t('hint_title'));
             return;
         }
         
@@ -1225,17 +1505,17 @@ async function handleSaveTag() {
             });
 
             renderTasks();
-            showNotification('Tag aktualisiert', 'success');
+            showNotification(t('tag_updated'), 'success');
             editingTagIndex = null;
         } catch (error) {
-            showInfoModal(error.message || 'Tag konnte nicht aktualisiert werden.', 'Fehler');
+            showInfoModal(error.message || t('tag_update_failed'), t('hint_title'));
             return;
         }
     } else {
         // Neuer Tag
         // Prüfe ob Tag bereits existiert
         if (AppState.tags.some(t => t.name === name)) {
-            showInfoModal('Dieser Tag existiert bereits.', 'Fehler');
+            showInfoModal(t('tag_exists'), t('hint_title'));
             return;
         }
         
@@ -1245,9 +1525,9 @@ async function handleSaveTag() {
                 color
             });
             AppState.tags.push(newTag);
-            showNotification('Tag erstellt', 'success');
+            showNotification(t('tag_created'), 'success');
         } catch (error) {
-            showInfoModal(error.message || 'Tag konnte nicht erstellt werden.', 'Fehler');
+            showInfoModal(error.message || t('tag_create_failed'), t('hint_title'));
             return;
         }
     }
@@ -1260,7 +1540,7 @@ async function handleSaveTag() {
     DOM.tagColor.value = '#dc3545';
     
     // Reset Modal Title
-    document.querySelector('#addTagModal .modal-title').textContent = 'Add New Tag';
+    document.querySelector('#addTagModal .modal-title').textContent = t('add_new_tag');
     
     // Close modal
     const modal = bootstrap.Modal.getInstance(document.getElementById('addTagModal'));
@@ -1281,7 +1561,7 @@ function handleEditTag(index) {
     updateTagPreview(tag.name, tag.color);
     
     // Change modal title
-    document.querySelector('#addTagModal .modal-title').textContent = 'Tag bearbeiten';
+    document.querySelector('#addTagModal .modal-title').textContent = t('edit_tag');
     
     // Open modal
     const modal = new bootstrap.Modal(document.getElementById('addTagModal'));
@@ -1292,8 +1572,8 @@ async function handleDeleteTag(index) {
     const tag = AppState.tags[index];
     
     const confirmed = await showConfirmModal(
-        `Möchten Sie den Tag "${tag.name}" wirklich löschen?\nEr wird aus allen Tasks entfernt.`,
-        'Tag löschen'
+        t('tag_delete_confirm', { tag: tag.name }),
+        t('tag_delete_title')
     );
     
     if (!confirmed) {
@@ -1310,9 +1590,9 @@ async function handleDeleteTag(index) {
 
         renderTags();
         renderTasks();
-        showNotification('Tag gelöscht', 'info');
+        showNotification(t('tag_deleted'), 'info');
     } catch (error) {
-        showInfoModal(error.message || 'Tag konnte nicht gelöscht werden.', 'Fehler');
+        showInfoModal(error.message || t('tag_delete_failed'), t('hint_title'));
     }
 }
 
@@ -1346,7 +1626,24 @@ function handleThemeChange(e) {
     // Speichere in localStorage
     localStorage.setItem('theme', newTheme);
     
-    showNotification(`Theme zu ${newTheme === 'dark' ? 'Dark Mode' : 'Light Mode'} geändert`, 'success');
+    const mode = newTheme === 'dark' ? t('theme_mode_dark') : t('theme_mode_light');
+    showNotification(t('theme_changed', { mode }), 'success');
+}
+
+function handleLanguageChange(e) {
+    const nextLanguage = e.target.value;
+    if (!SUPPORTED_LANGUAGES.includes(nextLanguage)) {
+        return;
+    }
+
+    AppState.language = nextLanguage;
+    localStorage.setItem(STORAGE_KEYS.LANGUAGE, nextLanguage);
+    applyLanguage();
+    renderLists();
+    renderTags();
+    renderTasks();
+    updateTagPreview(DOM.tagName.value, DOM.tagColor.value);
+    syncDetailLayoutState();
 }
 
 // ========================================
@@ -1358,7 +1655,7 @@ function formatDate(dateString) {
     
     const date = new Date(dateString);
     const options = { month: 'short', day: 'numeric', year: 'numeric' };
-    return date.toLocaleDateString('de-DE', options);
+    return date.toLocaleDateString(getLocale(), options);
 }
 
 function showNotification(message, type = 'info') {
@@ -1405,8 +1702,8 @@ async function handleLogout(e) {
     e.preventDefault();
     
     const confirmed = await showConfirmModal(
-        'Möchten Sie sich wirklich abmelden?',
-        'Abmelden'
+        t('logout_confirm'),
+        t('logout_title')
     );
     
     if (confirmed) {
@@ -1449,7 +1746,7 @@ const API = {
         }
 
         if (!response.ok) {
-            const message = body?.error || `API request failed (${response.status})`;
+            const message = body?.error || t('api_failed', { status: response.status });
             const error = new Error(message);
             error.status = response.status;
             throw error;
