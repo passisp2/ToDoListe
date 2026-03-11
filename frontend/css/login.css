@@ -431,11 +431,6 @@ button:focus-visible {
    Register Extensions
    ======================================== */
 
-.language-select {
-    width: 88px;
-    border-radius: 8px;
-}
-
 .strength-meter .progress {
     height: 8px;
     border-radius: 999px;

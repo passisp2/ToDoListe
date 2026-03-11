@@ -10,7 +10,6 @@ const CONFIG = {
 
 const I18N = {
     de: {
-        page_title: 'Registrierung - ToDo Liste',
         title: 'ToDo Liste',
         subtitle: 'Neues Konto erstellen',
         email_label: 'E-Mail',
@@ -40,38 +39,6 @@ const I18N = {
         register_error: 'Registrierung fehlgeschlagen.',
         request_error: 'Netzwerkfehler. Bitte versuchen Sie es erneut.',
         theme_title: 'Theme wechseln'
-    },
-    en: {
-        page_title: 'Register - ToDo List',
-        title: 'ToDo List',
-        subtitle: 'Create a new account',
-        email_label: 'Email',
-        email_placeholder: 'Enter email',
-        password_label: 'Password',
-        password_placeholder: 'Create password',
-        confirm_label: 'Confirm password',
-        confirm_placeholder: 'Repeat password',
-        strength_label: 'Password strength',
-        strength_weak: 'Weak',
-        strength_fair: 'Fair',
-        strength_good: 'Good',
-        strength_strong: 'Strong',
-        rule_length: 'At least 8 characters',
-        rule_special: 'At least 1 special character',
-        rule_digit: 'At least 1 number',
-        rule_upper: 'At least 1 uppercase letter',
-        rule_lower: 'At least 1 lowercase letter',
-        register_btn: 'Register',
-        register_loading: 'Registering...',
-        have_account: 'Already have an account?',
-        login_link: 'Go to login',
-        email_invalid: 'Please enter a valid email address.',
-        confirm_invalid: 'Passwords do not match.',
-        form_invalid_toast: 'Please fix the highlighted fields.',
-        register_success: 'Registration successful. Redirecting to login...',
-        register_error: 'Registration failed.',
-        request_error: 'Network error. Please try again.',
-        theme_title: 'Toggle theme'
     }
 };
 
@@ -93,11 +60,8 @@ const DOM = {
     toggleConfirmPassword: document.getElementById('toggleConfirmPassword'),
     toggleConfirmIcon: document.getElementById('toggleConfirmIcon'),
     themeToggle: document.getElementById('themeToggle'),
-    langSelect: document.getElementById('langSelect'),
     toastContainer: document.getElementById('toastContainer')
 };
-
-let currentLang = 'de';
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeRegister();
@@ -105,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initializeRegister() {
     loadTheme();
-    loadLanguage();
     applyTranslations();
     setupEventListeners();
     updatePasswordState();
@@ -136,35 +99,15 @@ function setupEventListeners() {
     });
 
     DOM.themeToggle.addEventListener('click', toggleTheme);
-    DOM.langSelect.addEventListener('change', (e) => {
-        setLanguage(e.target.value);
-    });
 }
 
 function getTranslations() {
-    return I18N[currentLang] || I18N.de;
-}
-
-function loadLanguage() {
-    const savedLang = localStorage.getItem('language') || 'de';
-    currentLang = I18N[savedLang] ? savedLang : 'de';
-    DOM.langSelect.value = currentLang;
-    document.documentElement.setAttribute('lang', currentLang);
-}
-
-function setLanguage(lang) {
-    currentLang = I18N[lang] ? lang : 'de';
-    localStorage.setItem('language', currentLang);
-    document.documentElement.setAttribute('lang', currentLang);
-    applyTranslations();
-    updatePasswordState();
-    validateEmailField(false);
-    validateConfirmPassword(false);
+    return I18N.de;
 }
 
 function applyTranslations() {
     const t = getTranslations();
-    document.title = t.page_title;
+    document.documentElement.setAttribute('lang', 'de');
     document.querySelectorAll('[data-i18n]').forEach((el) => {
         const key = el.dataset.i18n;
         if (t[key]) {
