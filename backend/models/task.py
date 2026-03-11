@@ -25,6 +25,7 @@ class Task(db.Model):
     completed = db.Column(db.Boolean, nullable=False, server_default=db.false())
     due_date = db.Column(db.Date, nullable=True)
     list_id = db.Column(db.Integer, db.ForeignKey("lists.id"), nullable=True)
+    owner_user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     created_at = db.Column(
         db.DateTime, nullable=False, server_default=db.func.current_timestamp()
     )
