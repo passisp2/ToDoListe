@@ -66,7 +66,7 @@ async function handleLogin(e) {
     const rememberMe = DOM.rememberMe.checked;
 
     if (!isValidEmail(email) || !password) {
-        showAlert('Bitte geben Sie eine gueltige E-Mail und ein Passwort ein.', 'danger');
+        showAlert('Bitte geben Sie eine gültige E-Mail und ein Passwort ein.', 'danger');
         return;
     }
 
@@ -91,8 +91,8 @@ async function handleLogin(e) {
         }
 
         if (response.status === 401) {
-            showAlert('Ungueltige Anmeldedaten. Bitte pruefen Sie E-Mail und Passwort.', 'danger');
-            window.alert('Warnung: Ungueltige Anmeldedaten.');
+            showAlert('Ungültige Anmeldedaten. Bitte prüfen Sie E-Mail und Passwort.', 'danger');
+            window.alert('Warnung: Ungültige Anmeldedaten.');
             DOM.password.value = '';
             DOM.password.focus();
             return;
