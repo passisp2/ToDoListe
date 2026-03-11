@@ -6,7 +6,7 @@ import re
 
 from flask import Blueprint, g, jsonify, request
 from pydantic import ValidationError
-from sqlalchemy import or_
+from sqlalchemy import and_, func, or_
 from sqlalchemy.exc import IntegrityError
 
 from database import db
@@ -47,8 +47,6 @@ def _slugify(name: str) -> str:
 
 
 def _list_is_accessible(todo_list: TodoList, user_id: int) -> bool:
-    if todo_list.owner_user_id is None:
-        return True
     if todo_list.owner_user_id == user_id:
         return True
     return any(share.shared_with_user_id == user_id for share in todo_list.shares)
@@ -59,7 +57,6 @@ def _accessible_lists_query(user_id: int):
         TodoList.query.outerjoin(ListShare, ListShare.list_id == TodoList.id)
         .filter(
             or_(
-                TodoList.owner_user_id.is_(None),
                 TodoList.owner_user_id == user_id,
                 ListShare.shared_with_user_id == user_id,
             )
@@ -121,14 +118,14 @@ def _serialize_task(task: Task) -> TaskResponse:
 
 
 def _validate_and_resolve_tags(tag_names: list[str]) -> tuple[list[Tag] | None, str | None]:
-    normalized = sorted({name.strip().lower() for name in tag_names if name and name.strip()})
-    if not normalized:
+    names = sorted({name.strip() for name in tag_names if name and name.strip()})
+    if not names:
         return [], None
 
-    tags = Tag.query.filter(Tag.name.in_(normalized)).all()
-    if len(tags) != len(normalized):
-        existing = {tag.name for tag in tags}
-        missing = [name for name in normalized if name not in existing]
+    tags = Tag.query.filter(func.lower(Tag.name).in_([n.lower() for n in names])).all()
+    if len(tags) != len(names):
+        existing = {tag.name.lower() for tag in tags}
+        missing = [name for name in names if name.lower() not in existing]
         return None, f"Unknown tags: {', '.join(missing)}."
     return tags, None
 
@@ -141,6 +138,24 @@ def list_lists():
     lists = _accessible_lists_query(user_id).order_by(TodoList.name.asc()).all()
     body = [_serialize_list(todo_list).model_dump(mode="json") for todo_list in lists]
     return jsonify(body)
+
+
+@todo_bp.delete("/lists/<string:list_slug>")
+@todo_bp.delete("/api/lists/<string:list_slug>")
+@require_access_token
+def delete_list(list_slug: str):
+    user_id = g.auth_user_id
+    todo_list = TodoList.query.filter_by(slug=list_slug).first()
+    if todo_list is None:
+        return _error("Liste nicht gefunden.", 404)
+    if todo_list.owner_user_id != user_id:
+        return _error("Keine Berechtigung.", 403)
+
+    # Tasks aus der Liste in die Inbox verschieben statt löschen
+    Task.query.filter_by(list_id=todo_list.id).update({"list_id": None})
+    db.session.delete(todo_list)
+    db.session.commit()
+    return "", 204
 
 
 @todo_bp.post("/lists")
@@ -202,10 +217,10 @@ def create_tag():
     except ValidationError:
         return _error("Invalid request payload.")
 
-    name = req.name.strip().lower()
+    name = req.name.strip()
     if not name:
         return _error("Tag name must not be empty.")
-    if Tag.query.filter_by(name=name).first() is not None:
+    if Tag.query.filter(func.lower(Tag.name) == name.lower()).first() is not None:
         return _error("Tag already exists.")
 
     tag = Tag(name=name, color=_normalize_color(req.color, "#dc3545"))
@@ -228,15 +243,14 @@ def update_tag(tag_name: str):
     except ValidationError:
         return _error("Invalid request payload.")
 
-    current_name = tag_name.strip().lower()
-    tag = Tag.query.filter_by(name=current_name).first()
+    tag = Tag.query.filter(func.lower(Tag.name) == tag_name.strip().lower()).first()
     if tag is None:
         return _error("Tag not found.", status_code=404)
 
-    new_name = req.name.strip().lower()
+    new_name = req.name.strip()
     if not new_name:
         return _error("Tag name must not be empty.")
-    if new_name != tag.name and Tag.query.filter_by(name=new_name).first() is not None:
+    if new_name.lower() != tag.name.lower() and Tag.query.filter(func.lower(Tag.name) == new_name.lower()).first() is not None:
         return _error("Tag already exists.")
 
     tag.name = new_name
@@ -249,8 +263,7 @@ def update_tag(tag_name: str):
 @todo_bp.delete("/api/tags/<string:tag_name>")
 @require_access_token
 def delete_tag(tag_name: str):
-    normalized = tag_name.strip().lower()
-    tag = Tag.query.filter_by(name=normalized).first()
+    tag = Tag.query.filter(func.lower(Tag.name) == tag_name.strip().lower()).first()
     if tag is None:
         return _error("Tag not found.", status_code=404)
     db.session.delete(tag)
@@ -268,8 +281,7 @@ def list_tasks():
         .outerjoin(ListShare, ListShare.list_id == TodoList.id)
         .filter(
             or_(
-                Task.list_id.is_(None),
-                TodoList.owner_user_id.is_(None),
+                and_(Task.list_id.is_(None), Task.owner_user_id == user_id),
                 TodoList.owner_user_id == user_id,
                 ListShare.shared_with_user_id == user_id,
             )
@@ -312,6 +324,7 @@ def create_task():
         completed=req.completed,
         due_date=req.due_date,
         list_id=target_list.id if target_list else None,
+        owner_user_id=g.auth_user_id,
     )
     if tags is not None:
         task.tags = tags
@@ -341,6 +354,8 @@ def update_task(task_id: int):
 
     # Current task must be visible to current user.
     if task.list and not _list_is_accessible(task.list, g.auth_user_id):
+        return _error("Task not found.", status_code=404)
+    if task.list is None and task.owner_user_id != g.auth_user_id:
         return _error("Task not found.", status_code=404)
 
     fields_set = req.model_fields_set
@@ -380,6 +395,8 @@ def delete_task(task_id: int):
     if task is None:
         return _error("Task not found.", status_code=404)
     if task.list and not _list_is_accessible(task.list, g.auth_user_id):
+        return _error("Task not found.", status_code=404)
+    if task.list is None and task.owner_user_id != g.auth_user_id:
         return _error("Task not found.", status_code=404)
 
     try:

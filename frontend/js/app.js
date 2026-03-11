@@ -26,10 +26,10 @@ const STORAGE_KEYS = {
 };
 
 const VIEW_TITLES = {
-    today: 'Today',
-    upcoming: 'Upcoming',
-    overview: 'Overview',
-    calender: 'Calendar'
+    today: 'Heute',
+    upcoming: 'Demnächst',
+    overview: 'Überblick',
+    calendar: 'Kalender'
 };
 
 // ========================================
@@ -48,6 +48,7 @@ const DOM = {
     taskDueDate: document.getElementById('taskDueDate'),
     taskTags: document.getElementById('taskTags'),
     cancelTaskBtn: document.getElementById('cancelTaskBtn'),
+    deleteTaskBtn: document.getElementById('deleteTaskBtn'),
     searchInput: document.getElementById('searchInput'),
     pageTitle: document.getElementById('pageTitle'),
     addListBtn: document.getElementById('addListBtn'),
@@ -96,15 +97,11 @@ async function initializeApp() {
             return;
         }
         AppState.currentUser = email;
-        void refreshAllData()
-            .then(() => {
-                renderTasks();
-                renderLists();
-                renderTags();
-            })
-            .catch(() => {
-                showNotification('Daten konnten nicht neu geladen werden.', 'danger');
-            });
+        void refreshAllData().then(() => {
+            renderTasks();
+            renderLists();
+            renderTags();
+        });
     });
 
     console.log('Todo List App initialized successfully');
@@ -201,14 +198,20 @@ async function refreshAllData() {
         AppState.tasks = Array.isArray(tasks) ? tasks : [];
         loadSharedLists();
     } catch (error) {
+        if (error.status === 401) return; // API.request() hat bereits den Redirect ausgelöst
         console.error('Error loading API data:', error);
         showNotification('Daten konnten nicht geladen werden.', 'danger');
     }
 }
 
 async function refreshTasksFromApi() {
-    const tasks = await API.getTasks();
-    AppState.tasks = Array.isArray(tasks) ? tasks : [];
+    try {
+        const tasks = await API.getTasks();
+        AppState.tasks = Array.isArray(tasks) ? tasks : [];
+    } catch (error) {
+        if (error.status === 401) return; // API.request() hat bereits den Redirect ausgelöst
+        console.error('Error refreshing tasks:', error);
+    }
 }
 
 function loadPersistedView() {
@@ -362,6 +365,9 @@ function setupEventListeners() {
     DOM.addTaskBtn.addEventListener('click', handleAddTask);
     DOM.closeTaskDetail.addEventListener('click', closeTaskDetail);
     DOM.cancelTaskBtn.addEventListener('click', closeTaskDetail);
+    DOM.deleteTaskBtn.addEventListener('click', () => {
+        if (AppState.selectedTask !== null) deleteTask(AppState.selectedTask);
+    });
     DOM.taskDetailForm.addEventListener('submit', handleSaveTask);
     
     // Search
@@ -375,6 +381,10 @@ function setupEventListeners() {
     // Lists
     DOM.addListBtn.addEventListener('click', handleAddListClick);
     DOM.saveListBtn.addEventListener('click', handleSaveList);
+    document.getElementById('addListModal').addEventListener('hidden.bs.modal', () => {
+        DOM.listName.value = '';
+        DOM.listColor.value = '#3498db';
+    });
     
     // List filters
     document.querySelectorAll('[data-list]').forEach(link => {
@@ -406,7 +416,7 @@ function setupEventListeners() {
         DOM.tagName.value = '';
         DOM.tagColor.value = '#dc3545';
         updateTagPreview('Vorschau', '#dc3545');
-        document.querySelector('#addTagModal .modal-title').textContent = 'Add New Tag';
+        document.querySelector('#addTagModal .modal-title').textContent = 'Neuer Tag';
     });
     
     // Theme
@@ -429,7 +439,7 @@ function renderTasks() {
     DOM.tasksList.innerHTML = '';
     DOM.tasksList.classList.remove('calendar-view');
 
-    if (AppState.currentView === 'calender') {
+    if (AppState.currentView === 'calendar') {
         renderCalendarWeek(filteredTasks);
         return;
     }
@@ -860,7 +870,7 @@ function getFilteredTasks() {
         case 'overview':
             // Show all tasks
             break;
-        case 'calender':
+        case 'calendar':
             filtered = filtered.filter(task => task.dueDate);
             break;
     }
@@ -940,32 +950,50 @@ function renderLists() {
         const isShared = list.sharedWith && list.sharedWith.length > 0;
         const isOwner = Boolean(AppState.currentUser) && list.owner === AppState.currentUser;
         const sharedIcon = isShared ? '<i class="bi bi-people-fill text-muted ms-1" title="Geteilt"></i>' : '';
-        const shareButton = isOwner ? `<i class="bi bi-share list-share-btn" data-list-id="${list.id}" title="Liste teilen"></i>` : '';
-        
-        listItem.innerHTML = `
-            <a class="nav-link d-flex justify-content-between align-items-center" href="#" data-list="${list.id}">
-                <span>
-                    <span class="badge rounded-circle me-2" style="background-color: ${list.color};">&nbsp;</span>
-                    ${list.name}
-                    ${sharedIcon}
-                </span>
-                ${shareButton}
-            </a>
-        `;
-        
-        const listLink = listItem.querySelector('a');
+        const shareButton = isOwner ? `<i class="bi bi-share list-share-btn me-1" data-list-id="${list.id}" title="Liste teilen"></i>` : '';
+        const deleteButton = isOwner ? `<i class="bi bi-trash list-delete-btn" data-list-id="${list.id}" title="Liste löschen"></i>` : '';
+
+        const listLink = document.createElement('a');
+        listLink.className = 'nav-link d-flex justify-content-between align-items-center';
+        listLink.href = '#';
+        listLink.dataset.list = list.id;
+
+        const labelSpan = document.createElement('span');
+        const colorBadge = document.createElement('span');
+        colorBadge.className = 'badge rounded-circle me-2';
+        colorBadge.style.backgroundColor = list.color;
+        colorBadge.innerHTML = '&nbsp;';
+        labelSpan.appendChild(colorBadge);
+        labelSpan.appendChild(document.createTextNode(list.name));
+        if (isShared) labelSpan.insertAdjacentHTML('beforeend', sharedIcon);
+
+        const actionsSpan = document.createElement('span');
+        actionsSpan.innerHTML = shareButton + deleteButton;
+
+        listLink.appendChild(labelSpan);
+        listLink.appendChild(actionsSpan);
+        listItem.appendChild(listLink);
+
         if (AppState.selectedListFilter === list.id) {
             listLink.classList.add('active');
         }
         listLink.addEventListener('click', handleListFilter);
-        
-        // Add event listener for share button
+
         const shareBtn = listItem.querySelector('.list-share-btn');
         if (shareBtn) {
             shareBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 openShareListModal(list.id);
+            });
+        }
+
+        const deleteBtn = listItem.querySelector('.list-delete-btn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleDeleteList(list.id);
             });
         }
         
@@ -1020,6 +1048,30 @@ async function handleSaveList() {
         showNotification('Liste erstellt', 'success');
     } catch (error) {
         showInfoModal(error.message || 'Liste konnte nicht erstellt werden.', 'Fehler');
+    }
+}
+
+async function handleDeleteList(listId) {
+    const list = AppState.lists.find(l => l.id === listId);
+    if (!list) return;
+
+    const confirmed = await showConfirmModal(
+        `Liste „${list.name}" wirklich löschen? Aufgaben in dieser Liste werden in die Inbox verschoben.`,
+        'Liste löschen'
+    );
+    if (!confirmed) return;
+
+    try {
+        await API.deleteList(listId);
+        AppState.lists = AppState.lists.filter(l => l.id !== listId);
+        if (AppState.selectedListFilter === listId) {
+            AppState.selectedListFilter = null;
+        }
+        renderLists();
+        await refreshTasksFromApi();
+        showNotification('Liste gelöscht', 'success');
+    } catch (error) {
+        showInfoModal(error.message || 'Liste konnte nicht gelöscht werden.', 'Fehler');
     }
 }
 
@@ -1081,46 +1133,39 @@ function renderSharedUsers(list) {
 }
 
 function handleShareList() {
-    const username = DOM.shareUsername.value.trim();
+    const email = DOM.shareUsername.value.trim();
     const permission = document.querySelector('input[name="sharePermission"]:checked').value;
-    
-    if (!username) {
-        showInfoModal('Bitte geben Sie einen Benutzernamen ein.', 'Fehler');
+
+    if (!email) {
+        showInfoModal('Bitte geben Sie eine E-Mail-Adresse ein.', 'Fehler');
         return;
     }
-    
-    if (username === AppState.currentUser) {
+
+    if (email === AppState.currentUser) {
         showInfoModal('Sie können die Liste nicht mit sich selbst teilen.', 'Fehler');
         return;
     }
-    
+
     const list = AppState.lists.find(l => l.id === currentSharingListId);
     if (!list) return;
-    
-    // Prüfe ob bereits geteilt
-    if (list.sharedWith.some(s => s.username === username)) {
-        showInfoModal('Diese Liste wurde bereits mit diesem Benutzer geteilt.', 'Fehler');
+
+    if (list.sharedWith.some(s => s.username === email)) {
+        showInfoModal('Diese Liste wurde bereits mit dieser E-Mail-Adresse geteilt.', 'Fehler');
         return;
     }
-    
-    // Füge neuen Share hinzu
+
     list.sharedWith.push({
-        username: username,
+        username: email,
         permission: permission,
         sharedAt: new Date().toISOString()
     });
-    
-    // Speichere in localStorage
+
     saveSharedLists();
-    
-    // Re-render
     renderSharedUsers(list);
     renderLists();
-    
-    // Clear input
+
     DOM.shareUsername.value = '';
-    
-    showNotification(`Liste mit ${username} geteilt`, 'success');
+    showNotification(`Liste mit ${email} geteilt`, 'success');
 }
 
 function removeSharedUser(index) {
@@ -1190,7 +1235,7 @@ function renderTags() {
     });
     
     // Update tag dropdown in task detail
-    DOM.taskTags.innerHTML = '<option value="">Select tag...</option>';
+    DOM.taskTags.innerHTML = '<option value="">Tag wählen...</option>';
     AppState.tags.forEach(tag => {
         const option = document.createElement('option');
         option.value = tag.name;
@@ -1202,7 +1247,7 @@ function renderTags() {
 let editingTagIndex = null;
 
 async function handleSaveTag() {
-    const name = DOM.tagName.value.trim().toLowerCase();
+    const name = DOM.tagName.value.trim();
     const color = DOM.tagColor.value;
     
     if (!name) {
@@ -1267,7 +1312,7 @@ async function handleSaveTag() {
     DOM.tagColor.value = '#dc3545';
     
     // Reset Modal Title
-    document.querySelector('#addTagModal .modal-title').textContent = 'Add New Tag';
+    document.querySelector('#addTagModal .modal-title').textContent = 'Neuer Tag';
     
     // Close modal
     const modal = bootstrap.Modal.getInstance(document.getElementById('addTagModal'));
@@ -1353,7 +1398,7 @@ function handleThemeChange(e) {
     // Speichere in localStorage
     localStorage.setItem('theme', newTheme);
     
-    showNotification(`Theme zu ${newTheme === 'dark' ? 'Dark Mode' : 'Light Mode'} geändert`, 'success');
+    showNotification(`Design auf ${newTheme === 'dark' ? 'Dunkel' : 'Hell'} geändert`, 'success');
 }
 
 // ========================================
@@ -1433,8 +1478,31 @@ async function handleLogout(e) {
 
 const API = {
     baseURL: '/api',
+    _refreshPromise: null,
 
-    async request(path, init = {}) {
+    async _tryRefresh() {
+        if (this._refreshPromise) return this._refreshPromise;
+        this._refreshPromise = fetch('/api/auth/refresh', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: '{}'
+        })
+            .then(res => res.ok)
+            .catch(() => false)
+            .finally(() => { this._refreshPromise = null; });
+        return this._refreshPromise;
+    },
+
+    async _redirectToLogin() {
+        if (typeof window.logout === 'function') {
+            window.logout();
+        } else {
+            window.location.href = 'login.html';
+        }
+    },
+
+    async request(path, init = {}, _isRetry = false) {
         const headers = { ...(init.headers || {}) };
         const requestInit = {
             method: init.method || 'GET',
@@ -1453,6 +1521,17 @@ const API = {
             body = await response.json();
         } catch {
             body = null;
+        }
+
+        if (response.status === 401 && !_isRetry) {
+            const refreshed = await this._tryRefresh();
+            if (refreshed) {
+                return this.request(path, init, true);
+            }
+            await this._redirectToLogin();
+            const error = new Error('Unauthorized');
+            error.status = 401;
+            throw error;
         }
 
         if (!response.ok) {
@@ -1486,6 +1565,10 @@ const API = {
 
     async createList(list) {
         return this.request('/lists', { method: 'POST', body: list });
+    },
+
+    async deleteList(slug) {
+        return this.request(`/lists/${slug}`, { method: 'DELETE' });
     },
 
     async getTags() {

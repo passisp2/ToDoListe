@@ -37,9 +37,11 @@ CREATE TABLE IF NOT EXISTS tasks (
   completed TINYINT(1) NOT NULL DEFAULT 0,
   due_date DATE NULL,
   list_id INT NULL,
+  owner_user_id INT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  CONSTRAINT fk_tasks_list FOREIGN KEY (list_id) REFERENCES lists(id)
+  CONSTRAINT fk_tasks_list FOREIGN KEY (list_id) REFERENCES lists(id),
+  CONSTRAINT fk_tasks_owner FOREIGN KEY (owner_user_id) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS task_tags (
@@ -62,61 +64,117 @@ CREATE TABLE IF NOT EXISTS list_shares (
   CONSTRAINT fk_list_shares_user FOREIGN KEY (shared_with_user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Optionale Seed-Daten
+-- ============================================================
+-- Seed-Daten für den Testuser (admin@todolist.com / admin123)
+-- Zeigt alle Features: Listen, Tags, Tasks (offen/erledigt,
+-- mit/ohne Fälligkeitsdatum, mit Tags, ohne Liste).
+-- ============================================================
+
 INSERT INTO users (email, password_hash, locale, theme)
-SELECT 'admin@todolist.com', 'demo_hash_replace_me', 'de-DE', 'light'
-WHERE NOT EXISTS (
-  SELECT 1 FROM users WHERE email = 'admin@todolist.com'
-);
+SELECT 'admin@todolist.com', '$argon2id$v=19$m=65536,t=3,p=4$QOmH4xlC8hRRN0AgAtFRoA$9Ib+yp9s3c1EvDQZKFkwhWUfTcUIm8Zv6U0gwqf3SDg', 'de-DE', 'light'
+WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'admin@todolist.com');
+
+-- Listen (owner = admin-User, id=1)
+INSERT INTO lists (slug, name, color, owner_user_id)
+SELECT 'arbeit', 'Arbeit', '#3498db', 1
+WHERE NOT EXISTS (SELECT 1 FROM lists WHERE slug = 'arbeit');
 
 INSERT INTO lists (slug, name, color, owner_user_id)
-SELECT 'personal', 'Personal', '#9b59b6', NULL
-WHERE NOT EXISTS (
-  SELECT 1 FROM lists WHERE slug = 'personal'
-);
+SELECT 'privat', 'Privat', '#9b59b6', 1
+WHERE NOT EXISTS (SELECT 1 FROM lists WHERE slug = 'privat');
 
 INSERT INTO lists (slug, name, color, owner_user_id)
-SELECT 'work', 'Work', '#3498db', NULL
-WHERE NOT EXISTS (
-  SELECT 1 FROM lists WHERE slug = 'work'
-);
+SELECT 'einkauf', 'Einkauf', '#27ae60', 1
+WHERE NOT EXISTS (SELECT 1 FROM lists WHERE slug = 'einkauf');
 
-INSERT INTO tags (name, color)
-SELECT 'high', '#dc3545'
-WHERE NOT EXISTS (
-  SELECT 1 FROM tags WHERE name = 'high'
-);
+-- Tags (global, kein Owner)
+INSERT INTO tags (name, color) SELECT 'Dringend', '#dc3545' WHERE NOT EXISTS (SELECT 1 FROM tags WHERE name = 'Dringend');
+INSERT INTO tags (name, color) SELECT 'Wichtig',  '#fd7e14' WHERE NOT EXISTS (SELECT 1 FROM tags WHERE name = 'Wichtig');
+INSERT INTO tags (name, color) SELECT 'Optional', '#6c757d' WHERE NOT EXISTS (SELECT 1 FROM tags WHERE name = 'Optional');
 
-INSERT INTO tags (name, color)
-SELECT 'medium', '#ffc107'
-WHERE NOT EXISTS (
-  SELECT 1 FROM tags WHERE name = 'medium'
-);
+-- Tasks in Liste "Arbeit"
+INSERT INTO tasks (title, description, completed, due_date, list_id, owner_user_id)
+SELECT 'Projektpräsentation vorbereiten',
+       'Folien für das Q2-Review erstellen und Agenda abstimmen.',
+       0, CURRENT_DATE + INTERVAL 3 DAY,
+       (SELECT id FROM lists WHERE slug = 'arbeit'), 1
+WHERE NOT EXISTS (SELECT 1 FROM tasks WHERE title = 'Projektpräsentation vorbereiten');
 
-INSERT INTO tags (name, color)
-SELECT 'low', '#198754'
-WHERE NOT EXISTS (
-  SELECT 1 FROM tags WHERE name = 'low'
-);
+INSERT INTO tasks (title, description, completed, due_date, list_id, owner_user_id)
+SELECT 'Code-Review für PR #42 durchführen',
+       'Branch feature/auth-refactor auf Sicherheitslücken prüfen.',
+       0, CURRENT_DATE + INTERVAL 1 DAY,
+       (SELECT id FROM lists WHERE slug = 'arbeit'), 1
+WHERE NOT EXISTS (SELECT 1 FROM tasks WHERE title = 'Code-Review für PR #42 durchführen');
 
-INSERT INTO tasks (title, description, completed, due_date, list_id)
-SELECT 'Beispielaufgabe', 'Diese Zeile stammt aus init.sql', 0, NULL, lists.id
-FROM lists
-WHERE lists.slug = 'personal'
-  AND NOT EXISTS (SELECT 1 FROM tasks WHERE title = 'Beispielaufgabe');
+INSERT INTO tasks (title, description, completed, due_date, list_id, owner_user_id)
+SELECT 'Stand-up-Meeting-Notizen dokumentieren',
+       'Erledigte Punkte aus dem Weekly ins Confluence übertragen.',
+       1, NULL,
+       (SELECT id FROM lists WHERE slug = 'arbeit'), 1
+WHERE NOT EXISTS (SELECT 1 FROM tasks WHERE title = 'Stand-up-Meeting-Notizen dokumentieren');
 
-INSERT INTO tasks (title, description, completed, due_date, list_id)
-SELECT 'Team-Meeting vorbereiten', 'Agenda und offene Punkte sammeln', 0, CURRENT_DATE + INTERVAL 2 DAY, lists.id
-FROM lists
-WHERE lists.slug = 'work'
-  AND NOT EXISTS (SELECT 1 FROM tasks WHERE title = 'Team-Meeting vorbereiten');
+-- Tasks in Liste "Privat"
+INSERT INTO tasks (title, description, completed, due_date, list_id, owner_user_id)
+SELECT 'Zahnarzttermin buchen',
+       'Halbjährliche Kontrolle ist überfällig.',
+       0, CURRENT_DATE + INTERVAL 7 DAY,
+       (SELECT id FROM lists WHERE slug = 'privat'), 1
+WHERE NOT EXISTS (SELECT 1 FROM tasks WHERE title = 'Zahnarzttermin buchen');
+
+INSERT INTO tasks (title, description, completed, due_date, list_id, owner_user_id)
+SELECT 'Steuererklärung einreichen',
+       'Unterlagen von Steuerberater abholen und ELSTER-Formular ausfüllen.',
+       0, CURRENT_DATE + INTERVAL 14 DAY,
+       (SELECT id FROM lists WHERE slug = 'privat'), 1
+WHERE NOT EXISTS (SELECT 1 FROM tasks WHERE title = 'Steuererklärung einreichen');
+
+INSERT INTO tasks (title, description, completed, due_date, list_id, owner_user_id)
+SELECT 'Wohnung putzen',
+       NULL,
+       1, NULL,
+       (SELECT id FROM lists WHERE slug = 'privat'), 1
+WHERE NOT EXISTS (SELECT 1 FROM tasks WHERE title = 'Wohnung putzen');
+
+-- Tasks in Liste "Einkauf"
+INSERT INTO tasks (title, description, completed, due_date, list_id, owner_user_id)
+SELECT 'Lebensmittel für die Woche',
+       'Milch, Brot, Käse, Tomaten, Pasta, Olivenöl.',
+       0, CURRENT_DATE,
+       (SELECT id FROM lists WHERE slug = 'einkauf'), 1
+WHERE NOT EXISTS (SELECT 1 FROM tasks WHERE title = 'Lebensmittel für die Woche');
+
+INSERT INTO tasks (title, description, completed, due_date, list_id, owner_user_id)
+SELECT 'Neues HDMI-Kabel bestellen',
+       'Mindestens 2m, 4K-fähig.',
+       0, NULL,
+       (SELECT id FROM lists WHERE slug = 'einkauf'), 1
+WHERE NOT EXISTS (SELECT 1 FROM tasks WHERE title = 'Neues HDMI-Kabel bestellen');
+
+-- Task ohne Liste (zeigt Inbox/owner_user_id-Feature)
+INSERT INTO tasks (title, description, completed, due_date, list_id, owner_user_id)
+SELECT 'Idee: Side-Project für Habit Tracker',
+       'Konzept ausarbeiten – Stack: FastAPI + React.',
+       0, NULL, NULL, 1
+WHERE NOT EXISTS (SELECT 1 FROM tasks WHERE title = 'Idee: Side-Project für Habit Tracker');
+
+-- Tags zu Tasks zuweisen
+INSERT INTO task_tags (task_id, tag_id)
+SELECT t.id, tg.id FROM tasks t JOIN tags tg ON tg.name = 'Dringend'
+WHERE t.title = 'Projektpräsentation vorbereiten'
+  AND NOT EXISTS (SELECT 1 FROM task_tags WHERE task_id = t.id AND tag_id = tg.id);
 
 INSERT INTO task_tags (task_id, tag_id)
-SELECT tasks.id, tags.id
-FROM tasks
-JOIN tags ON tags.name = 'medium'
-WHERE tasks.title = 'Team-Meeting vorbereiten'
-  AND NOT EXISTS (
-    SELECT 1 FROM task_tags
-    WHERE task_tags.task_id = tasks.id AND task_tags.tag_id = tags.id
-  );
+SELECT t.id, tg.id FROM tasks t JOIN tags tg ON tg.name = 'Dringend'
+WHERE t.title = 'Code-Review für PR #42 durchführen'
+  AND NOT EXISTS (SELECT 1 FROM task_tags WHERE task_id = t.id AND tag_id = tg.id);
+
+INSERT INTO task_tags (task_id, tag_id)
+SELECT t.id, tg.id FROM tasks t JOIN tags tg ON tg.name = 'Wichtig'
+WHERE t.title = 'Steuererklärung einreichen'
+  AND NOT EXISTS (SELECT 1 FROM task_tags WHERE task_id = t.id AND tag_id = tg.id);
+
+INSERT INTO task_tags (task_id, tag_id)
+SELECT t.id, tg.id FROM tasks t JOIN tags tg ON tg.name = 'Optional'
+WHERE t.title = 'Neues HDMI-Kabel bestellen'
+  AND NOT EXISTS (SELECT 1 FROM task_tags WHERE task_id = t.id AND tag_id = tg.id);
